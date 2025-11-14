@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 
-function CalendarView({ events, onSelectDate }) {
-  const [date, setDate] = useState(new Date());
-
+function CalendarView({ events, selectedDate, onSelectDate, onChangeViewMode }) {
   const handleDateChange = (d) => {
-    setDate(d);
     onSelectDate(d);
+    onChangeViewMode("selected");   // <-- add this line
   };
 
   // ADD THIS - Function to check if a date is in the past
@@ -19,23 +17,28 @@ function CalendarView({ events, onSelectDate }) {
     return checkDate < today;
   };
 
-  const eventsForSelectedDate = events.filter(
+  /*const eventsForSelectedDate = events.filter(
     e => {
     // Create local date string without timezone conversion
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
     const formatted = `${year}-${month}-${day}`;
+
+    console.log("Stored event date:", e.date);
+console.log("Comparing with:", formatted);
+console.log("Match?", e.date === formatted);
+
     
     return e.date === formatted;
   }
-  );
+  );*/
 
   return (
     <div>
       <Calendar 
         onChange={handleDateChange} 
-        value={date}
+        value={selectedDate}
         minDate={new Date()} // ADD THIS - Disable past dates
         tileClassName={({ date: d, view }) => {
           if (view === 'month') {
@@ -59,22 +62,6 @@ function CalendarView({ events, onSelectDate }) {
           return false;
         }}
       />
-      
-      {eventsForSelectedDate.length > 0 && (
-        <div className="selected-date-events">
-          <h3 className="selected-date-title">
-            Events on {date.toDateString()}
-          </h3>
-          <ul className="selected-date-list">
-            {eventsForSelectedDate.map(e => (
-              <li key={e.id} className="selected-date-item" style={{ borderLeftColor: e.color || '#3f51b5' }}>
-                <strong>{e.title}</strong> at {e.time}
-                {e.description && ` — ${e.description}`}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

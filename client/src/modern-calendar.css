@@ -249,6 +249,38 @@ body {
   color: white;
 }
 
+/* ---- Event List Header ---- */
+.event-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f7f9fc;
+  border-bottom: 1px solid #e0e6ef;
+}
+
+.event-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* ---- All Events Button ---- */
+.all-events-btn {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.all-events-btn:hover {
+  background: #3c7bc0;
+}
+
 /* Event List */
 .event-list {
   list-style: none;

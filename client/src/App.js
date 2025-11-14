@@ -14,6 +14,8 @@ function App() {
   const [isEventListExpanded, setIsEventListExpanded] = useState(false); // ADD THIS
   const [showEventForm, setShowEventForm] = useState(false); // ADD THIS
   const [eventToDelete, setEventToDelete] = useState(null); // ADD THIS
+  const [viewMode, setViewMode] = useState("selected"); 
+
 
   // Fetch events from backend
   useEffect(() => {
@@ -60,6 +62,38 @@ function App() {
       setEventToDelete(null); // ADD THIS - Close confirmation modal
   };
 
+  const formatSelectedDate = (date) => {
+    if (!date) return "";
+    return date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+  };
+
+  // Format date like "14 November 2025"
+  const formatDateLong = (date) => {
+    if (!date) return "";
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  };
+
+  const selectedDateFormatted = selectedDate 
+  ? formatDateLong(new Date(selectedDate))
+  : "";
+
+
+  const handleShowAllEvents = () => {
+    setViewMode("all");
+  };
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+    setViewMode("selected");
+  };
+
   return (
     <div className="app-container">
     <header className="app-header">
@@ -78,7 +112,8 @@ function App() {
               className="btn-toggle-sidebar" 
               onClick={() => setIsEventListExpanded(!isEventListExpanded)}
             >
-              {isEventListExpanded ? '◀' : '▶'}
+
+            {isEventListExpanded ? '◀' : '▶'}
             </button>
             {isEventListExpanded && (
               <>
@@ -92,9 +127,39 @@ function App() {
               </>
             )}
           </div>
+
+          {/* ---- NEW event list header ---- */}
+          {isEventListExpanded && (
+            <div className="event-list-header">
+                <div className="event-list-title">
+                    {viewMode === "all" 
+                        ? "All Events"
+                        : `Events for ${selectedDateFormatted}`
+                    }
+                </div>
+
+                {viewMode !== "all" && (
+                    <button 
+                        className="all-events-btn"
+                        onClick={handleShowAllEvents}
+                    >
+                        All Events
+                    </button>
+                )}
+            </div>
+          )} 
+
           {isEventListExpanded && (
             <EventList 
-              events={events} 
+              events={
+                viewMode === "all" 
+                  ? events 
+                  : events.filter(e => {
+                    const selectedYYYYMMDD = selectedDate.toISOString().slice(0, 10);
+                    return e.date === selectedYYYYMMDD;
+                  })
+                  
+              }
               onDelete={setEventToDelete} // CHANGE THIS - Pass setEventToDelete instead of deleteEvent 
               onEdit={(event) => {
                 setEditingEvent(event);
@@ -117,7 +182,9 @@ function App() {
             </div>
             <CalendarView 
               events={events} 
-              onSelectDate={setSelectedDate} 
+              onSelectDate={setSelectedDate}
+              onChangeViewMode={setViewMode} 
+              selectedDate={selectedDate}
             />
           </div>
         </div>
