@@ -5,11 +5,23 @@ import EventList from "./EventList";
 import CalendarView from "./CalendarView";
 import "./modern-calendar.css"; // Import the new CSS file
 
+// API URL - will use environment variable in production, localhost in development
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function App() {
   const [events, setEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const eventsForSelectedDate = events.filter(
-    e => e.date === selectedDate.toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+  const eventsForSelectedDate = events.filter(e => {
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const selectedYYYYMMDD = `${year}-${month}-${day}`;
+    return e.date === selectedYYYYMMDD;
+  });
   const [editingEvent, setEditingEvent] = useState(null);
   const [isEventListExpanded, setIsEventListExpanded] = useState(false); // ADD THIS
   const [showEventForm, setShowEventForm] = useState(false); // ADD THIS
@@ -19,7 +31,7 @@ function App() {
 
   // Fetch events from backend
   useEffect(() => {
-    fetch("http://localhost:5000/events")
+    fetch(`${API_URL}/events`)
       .then(res => res.json())
       .then(data => setEvents(data));
   }, []);
@@ -28,7 +40,7 @@ function App() {
     try {
       if (event.id) {
         // Existing event — update
-        await fetch(`http://localhost:5000/events/${event.id}`, {
+        await fetch(`${API_URL}/events/${event.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(event),
@@ -39,7 +51,7 @@ function App() {
         );
       } else {
         // New event — add
-        const res = await fetch("http://localhost:5000/events", {
+        const res = await fetch(`${API_URL}/events`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(event),
@@ -57,7 +69,7 @@ function App() {
 
   // Delete event
   const deleteEvent = (id) => {
-    fetch(`http://localhost:5000/events/${id}`, { method: "DELETE" })
+    fetch(`${API_URL}/events/${id}`, { method: "DELETE" })
       .then(() => setEvents(events.filter(e => e.id !== id)));
       setEventToDelete(null); // ADD THIS - Close confirmation modal
   };
@@ -155,10 +167,12 @@ function App() {
                 viewMode === "all" 
                   ? events 
                   : events.filter(e => {
-                    const selectedYYYYMMDD = selectedDate.toISOString().slice(0, 10);
+                    const year = selectedDate.getFullYear();
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(selectedDate.getDate()).padStart(2, '0');
+                    const selectedYYYYMMDD = `${year}-${month}-${day}`;
                     return e.date === selectedYYYYMMDD;
                   })
-                  
               }
               onDelete={setEventToDelete} // CHANGE THIS - Pass setEventToDelete instead of deleteEvent 
               onEdit={(event) => {

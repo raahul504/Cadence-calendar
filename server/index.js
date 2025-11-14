@@ -1,70 +1,67 @@
 const express = require("express");
 const cors = require("cors");
-const sqlite3 = require("sqlite3").verbose();
+const { pool, initDB } = require('./db');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to database
-const db = new sqlite3.Database("./calendar.db");
-
-// Create the table if it doesn't exist
-db.run(`
-  CREATE TABLE IF NOT EXISTS events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    date TEXT,
-    time TEXT,
-    description TEXT
-    color TEXT
-  )
-`);
+// Initialize database on startup
+initDB();
 
 // Get all events
-app.get("/events", (req, res) => {
-  db.all("SELECT * FROM events", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+app.get("/events", async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM events ORDER BY date, time');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// Add new event
-app.post("/events", (req, res) => {
+// Create event
+app.post("/events", async (req, res) => {
   const { title, date, time, description, color } = req.body;
-  db.run(
-    "INSERT INTO events (title, date, time, description, color) VALUES (?, ?, ?, ?, ?)",
-    [title, date, time, description, color],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID });
-    }
-  );
+  try {
+    const result = await pool.query(
+      'INSERT INTO events (title, date, time, description, color) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [title, date, time, description, color]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// Delete an event
-app.delete("/events/:id", (req, res) => {
-  db.run("DELETE FROM events WHERE id = ?", [req.params.id], function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ deleted: this.changes });
-  });
-});
-
-// Update an existing event
-app.put("/events/:id", (req, res) => {
-  const id = req.params.id;
+// Update event
+app.put("/events/:id", async (req, res) => {
+  const { id } = req.params;
   const { title, date, time, description, color } = req.body;
-
-  db.run(
-    "UPDATE events SET title = ?, date = ?, time = ?, description = ?, color = ? WHERE id = ?",
-    [title, date, time, description, color, id],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ updated: this.changes });
-    }
-  );
+  try {
+    const result = await pool.query(
+      'UPDATE events SET title=$1, date=$2, time=$3, description=$4, color=$5 WHERE id=$6 RETURNING *',
+      [title, date, time, description, color, id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-// Start the server
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Delete event
+app.delete("/events/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query('DELETE FROM events WHERE id=$1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server on port ${PORT}`));

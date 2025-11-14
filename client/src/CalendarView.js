@@ -26,8 +26,8 @@ function CalendarView({ events, selectedDate, onSelectDate, onChangeViewMode }) 
     const formatted = `${year}-${month}-${day}`;
 
     console.log("Stored event date:", e.date);
-console.log("Comparing with:", formatted);
-console.log("Match?", e.date === formatted);
+    console.log("Comparing with:", formatted);
+    console.log("Match?", e.date === formatted);
 
     
     return e.date === formatted;
@@ -39,7 +39,7 @@ console.log("Match?", e.date === formatted);
       <Calendar 
         onChange={handleDateChange} 
         value={selectedDate}
-        minDate={new Date()} // ADD THIS - Disable past dates
+        //minDate={new Date()} ADD THIS - Disable past dates
         tileClassName={({ date: d, view }) => {
           if (view === 'month') {
             // Create local date string without timezone conversion
@@ -55,12 +55,12 @@ console.log("Match?", e.date === formatted);
           }
           return null;
         }}
-        tileDisabled={({ date: d, view }) => { // ADD THIS - Disable past dates
+        /*tileDisabled={({ date: d, view }) => { // ADD THIS - Disable past dates
           if (view === 'month') {
             return isPastDate(d);
           }
           return false;
-        }}
+        }}*/
       />
     </div>
   );

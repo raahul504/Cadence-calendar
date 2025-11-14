@@ -1,11 +1,6 @@
 import React from "react";
 
 function EventList({ events, onDelete, onEdit }) {
-  console.log("EVENTS TYPE:", typeof events);
-console.log("EVENTS IS ARRAY?", Array.isArray(events));
-console.log("EVENTS VALUE:", events);
-
-
   if (events.length === 0) {
     return (
       <div className="empty-state" style={{ padding: '2rem 1rem' }}>

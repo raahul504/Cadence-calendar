@@ -97,44 +97,48 @@ function EventForm({ onSave, editingEvent, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="event-form">
       <div className="form-group">
-        <label className="form-label">Event Title</label>
+        {/*<label className="form-label">Event Title</label>*/}
         <input 
           className="form-input"
-          placeholder="Enter event title" 
+          placeholder="Event title" 
           value={form.title} 
           onChange={e => setForm({...form, title: e.target.value})} 
           required
         />
       </div>
 
-      <div className="form-group">
-        <label className="form-label">Date</label>
-        <input 
-          className="form-input"
-          type="date" 
-          value={form.date} 
-          onChange={e => setForm({...form, date: e.target.value})}
-          min={new Date().toISOString().split('T')[0]} // ADD THIS
-          required
-        />
+      <div className="form-row">
+        <div className="form-group form-group-half">
+          {/*<label className="form-label">Date</label>*/}
+          <input 
+            className="form-input"
+            type="date"
+            placeholder="Date" 
+            value={form.date} 
+            onChange={e => setForm({...form, date: e.target.value})}
+            min={new Date().toISOString().split('T')[0]} // ADD THIS
+            required
+          />
+        </div>
+
+        <div className="form-group form-group-half">
+          {/*<label className="form-label">Time</label>*/}
+          <input 
+            className="form-input"
+            type="time" 
+            placeholder="Time"
+            value={form.time} 
+            onChange={e => setForm({...form, time: e.target.value})} 
+            required
+          />
+        </div>
       </div>
 
       <div className="form-group">
-        <label className="form-label">Time</label>
+        {/*<label className="form-label">Description (Optional)</label>*/}
         <input 
           className="form-input"
-          type="time" 
-          value={form.time} 
-          onChange={e => setForm({...form, time: e.target.value})} 
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label className="form-label">Description (Optional)</label>
-        <input 
-          className="form-input"
-          placeholder="Add event details" 
+          placeholder="Description (Optional)" 
           value={form.description} 
           onChange={e => setForm({...form, description: e.target.value})} 
         />

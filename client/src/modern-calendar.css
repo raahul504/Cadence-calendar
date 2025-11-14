@@ -46,7 +46,7 @@ body {
 
 /* App Container */
 .app-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
@@ -130,13 +130,23 @@ body {
 .event-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+/* Add after the .form-group styles (around line 105) */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group-half {
+  flex: 1;
 }
 
 .form-label {
@@ -254,9 +264,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: #f7f9fc;
-  border-bottom: 1px solid #e0e6ef;
+  padding: 12px 20px 8px 20px;
+  background: transparent/*#f7f9fc*/;
+  /*border-bottom: 1px solid #e0e6ef;*/
 }
 
 .event-list-title {
@@ -267,8 +277,8 @@ body {
 
 /* ---- All Events Button ---- */
 .all-events-btn {
-  background: #4a90e2;
-  color: white;
+  background: transparent;
+  color: rgb(0, 0, 0);
   border: none;
   padding: 6px 10px;
   border-radius: 6px;
@@ -278,7 +288,7 @@ body {
 }
 
 .all-events-btn:hover {
-  background: #3c7bc0;
+  background: #cacaca;
 }
 
 /* Event List */
@@ -414,9 +424,24 @@ body {
   color: white !important;
 }
 
+.react-calendar__tile--active.event-date {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
 .react-calendar__tile--now {
-  background: #fef3c7;
-  color: var(--text-primary);
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
+}
+
+.react-calendar__tile--now.event-date {
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active {
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
 }
 
 /* ADD these styles for disabled calendar tiles */
@@ -434,21 +459,22 @@ body {
 
 .event-date {
   position: relative;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-  color: white !important;
-  font-weight: 700;
+  background: rgba(99, 102, 241, 0.15) !important;
+  /*border: 1px solid var(--primary) !important;*/
+  color: var(--text-primary) !important;
+  font-weight: 600;
 }
 
 .event-date::after {
   content: '';
   position: absolute;
-  bottom: 4px;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  background: white;
-  border-radius: 50%;
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
 }
 
 .selected-date-events {

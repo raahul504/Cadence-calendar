@@ -10,21 +10,21 @@ function App() {
 
   // Fetch events from backend
   useEffect(() => {
-    fetch("http://localhost:5000/events")
+    fetch("${API_URL}/events")
       .then(res => res.json())
       .then(data => setEvents(data));
   }, []);
 
   // Add new event
   const addEvent = (event) => {
-    fetch("http://localhost:5000/events", {
+    fetch("${API_URL}/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(event),
     })
       .then(res => res.json())
       .then(() => {
-        return fetch("http://localhost:5000/events");
+        return fetch("${API_URL}/events");
       })
       .then(res => res.json())
       .then(data => setEvents(data));
@@ -32,7 +32,7 @@ function App() {
 
   // Delete event
   const deleteEvent = (id) => {
-    fetch(`http://localhost:5000/events/${id}`, { method: "DELETE" })
+    fetch(`${API_URL}/events/${id}`, { method: "DELETE" })
       .then(() => setEvents(events.filter(e => e.id !== id)));
   };
   return (
