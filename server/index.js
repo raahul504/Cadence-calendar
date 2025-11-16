@@ -13,7 +13,11 @@ initDB();
 app.get("/events", async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM events ORDER BY date, time');
-    res.json(result.rows);
+    const formattedEvents = result.rows.map(event => ({
+      ...event,
+      date: event.date.toISOString().split('T')[0]
+    }));
+    res.json(formattedEvents);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error' });
@@ -22,13 +26,17 @@ app.get("/events", async (req, res) => {
 
 // Create event
 app.post("/events", async (req, res) => {
-  const { title, date, time, description, color } = req.body;
+   const { title, date, time, description, color } = req.body;
   try {
     const result = await pool.query(
       'INSERT INTO events (title, date, time, description, color) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [title, date, time, description, color]
     );
-    res.json(result.rows[0]);
+    const formattedEvent = {
+      ...result.rows[0],
+      date: result.rows[0].date.toISOString().split('T')[0]
+    };
+    res.json(formattedEvent);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error' });
@@ -44,7 +52,11 @@ app.put("/events/:id", async (req, res) => {
       'UPDATE events SET title=$1, date=$2, time=$3, description=$4, color=$5 WHERE id=$6 RETURNING *',
       [title, date, time, description, color, id]
     );
-    res.json(result.rows[0]);
+    const formattedEvent = {
+      ...result.rows[0],
+      date: result.rows[0].date.toISOString().split('T')[0]
+    };
+    res.json(formattedEvent);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error' });

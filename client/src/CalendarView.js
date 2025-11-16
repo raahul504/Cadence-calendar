@@ -48,7 +48,13 @@ function CalendarView({ events, selectedDate, onSelectDate, onChangeViewMode }) 
             const day = String(d.getDate()).padStart(2, '0');
             const formatted = `${year}-${month}-${day}`;
 
-            const eventDates = events.map(e => e.date);
+            const eventDates = events.map(e => {
+              // Extract just the date part if it's a full timestamp
+              if (e.date && e.date.includes('T')) {
+                return e.date.split('T')[0];
+              }
+              return e.date;
+            });
             if (eventDates.includes(formatted)) {
               return 'event-date';
             }

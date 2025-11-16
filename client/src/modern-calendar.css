@@ -88,20 +88,6 @@ body {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Main Grid Layout */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  animation: fadeIn 0.6s ease-out 0.4s both;
-}
-
-@media (max-width: 968px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Card Styles */
 .card {
   background: var(--surface);
@@ -366,11 +352,6 @@ body {
   font-size: 1.125rem;
 }
 
-/* Calendar View */
-.calendar-container {
-  grid-column: 1 / -1;
-}
-
 .calendar-summary {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
@@ -477,7 +458,7 @@ body {
   border-radius: 2px;
 }
 
-.selected-date-events {
+/*.selected-date-events {
   margin-top: 1.5rem;
 }
 
@@ -506,7 +487,7 @@ body {
 
 .selected-date-item strong {
   color: var(--text-primary);
-}
+}*/
 
 /* Footer */
 .app-footer {

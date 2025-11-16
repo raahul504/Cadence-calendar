@@ -19,8 +19,8 @@ function EventList({ events, onDelete, onEdit }) {
           <div className="event-info">
             <div className="event-title">{e.title}</div>
             <div className="event-meta">
-              <span>📅 {e.date}</span>
-              <span>🕐 {e.time}</span>
+              <span>📅 {e.date ? e.date.split('T')[0] : 'No date'}</span>
+              <span>🕐 {e.time || 'No time'}</span>
             </div>
             {e.description && (
               <div className="event-description">{e.description}</div>
