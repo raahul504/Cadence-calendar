@@ -15,7 +15,9 @@ app.get("/events", async (req, res) => {
     const result = await pool.query('SELECT * FROM events ORDER BY date, time');
     const formattedEvents = result.rows.map(event => ({
       ...event,
-      date: event.date.toISOString().split('T')[0]
+      date: event.date instanceof Date 
+        ? `${event.date.getFullYear()}-${String(event.date.getMonth() + 1).padStart(2, '0')}-${String(event.date.getDate()).padStart(2, '0')}`
+        : event.date
     }));
     res.json(formattedEvents);
   } catch (err) {
@@ -34,7 +36,9 @@ app.post("/events", async (req, res) => {
     );
     const formattedEvent = {
       ...result.rows[0],
-      date: result.rows[0].date.toISOString().split('T')[0]
+      date: result.rows[0].date instanceof Date 
+        ? `${result.rows[0].date.getFullYear()}-${String(result.rows[0].date.getMonth() + 1).padStart(2, '0')}-${String(result.rows[0].date.getDate()).padStart(2, '0')}`
+        : result.rows[0].date
     };
     res.json(formattedEvent);
   } catch (err) {
@@ -54,7 +58,9 @@ app.put("/events/:id", async (req, res) => {
     );
     const formattedEvent = {
       ...result.rows[0],
-      date: result.rows[0].date.toISOString().split('T')[0]
+      date: result.rows[0].date instanceof Date 
+        ? `${result.rows[0].date.getFullYear()}-${String(result.rows[0].date.getMonth() + 1).padStart(2, '0')}-${String(result.rows[0].date.getDate()).padStart(2, '0')}`
+        : result.rows[0].date
     };
     res.json(formattedEvent);
   } catch (err) {

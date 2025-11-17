@@ -13,7 +13,7 @@
   --border: #e2e8f0;
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --radius: 12px;
+  --radius: 20px;
 
    /* ADD THESE - Google Calendar colors */
   --color-tomato: #d50000;
@@ -172,7 +172,7 @@ body {
 
 /* Buttons */
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 0.75rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -222,9 +222,9 @@ body {
 .btn-danger {
   background: transparent;
   color: var(--danger);
-  padding: 0.5rem 1rem;
-  font-size: 0.800rem;
-  border: 1px solid var(--danger);
+  font-size: 18px !important;
+  /*padding: 0.5rem 1rem;
+  border: 1px solid var(--danger);*/
 }
 
 .btn-danger:hover {
@@ -235,9 +235,9 @@ body {
 .btn-edit {
   background: transparent;
   color: var(--primary);
-  padding: 0.5rem 1rem;
-  font-size: 0.800rem;
-  border: 1px solid var(--primary);
+  font-size: 18px !important;
+  /*padding: 0.5rem 1rem;
+  border: 1px solid var(--primary);*/
 }
 
 .btn-edit:hover {
@@ -356,8 +356,8 @@ body {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
   padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
+  border-radius: 100px;
+  margin-bottom: 1rem;
   font-weight: 500;
   text-align: center;
 }
@@ -571,11 +571,6 @@ body {
     margin-top: 0.5rem;
     width: 31%;
   }
-
-  .btn-edit,
-  .btn-danger {
-    flex: 1;
-  }
 }
 
 /* REPLACE .main-grid with this calendar layout */
@@ -598,16 +593,15 @@ body {
 }
 
 .event-sidebar.expanded {
-  width: 380px;
+  width: 350px;
 }
 
 .event-sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
-  padding: 1rem;
-  border-bottom: 2px solid var(--border);
+  padding: 10px;
 }
 
 .btn-toggle-sidebar {
@@ -617,6 +611,7 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 8px;
+  padding: 5px;
   cursor: pointer;
   font-size: 1.25rem;
   transition: all 0.2s;
@@ -661,7 +656,7 @@ body {
 
 .event-sidebar .event-actions {
   flex-direction: column;
-  width: 31%;
+  width: 25%;
 }
 
 .event-sidebar .btn-edit,
@@ -712,7 +707,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 2px solid var(--border);
+  /*border-bottom: 2px solid var(--border);*/
 }
 
 .modal-title {
@@ -789,6 +784,19 @@ body {
   background: var(--danger);
   color: white;
 }
+
+/* Global Material Icon control */
+.material-icons {
+  font-size: 18px;   /* override ALL */
+  line-height: 1 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-large { font-size: 28px; }
+.icon-medium { font-size: 20px; }
+.icon-small { font-size: 12px; }
 
 .modal-content .event-form {
   padding: 1.5rem;

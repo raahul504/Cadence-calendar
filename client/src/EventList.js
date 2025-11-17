@@ -19,8 +19,8 @@ function EventList({ events, onDelete, onEdit }) {
           <div className="event-info">
             <div className="event-title">{e.title}</div>
             <div className="event-meta">
-              <span>📅 {e.date ? e.date.split('T')[0] : 'No date'}</span>
-              <span>🕐 {e.time || 'No time'}</span>
+              <span><span class="material-icons icon-small">calendar_today</span>  {e.date ? e.date.split('T')[0] : 'No date'}</span>
+              <span><span class="material-icons icon-small">access_time</span>  {e.time || 'No time'}</span>
             </div>
             {e.description && (
               <div className="event-description">{e.description}</div>
@@ -32,14 +32,14 @@ function EventList({ events, onDelete, onEdit }) {
               className="btn btn-edit"
               title="Edit event"
             >
-              ✏️ Edit
+              <span className="material-icons">edit</span>
             </button>
             <button 
               onClick={() => onDelete(e)} // CHANGE from onDelete(e.id) to onDelete(e)
               className="btn btn-danger"
               title="Delete event"
             >
-              🗑️ Delete
+              <span className="material-icons">delete</span>
             </button>
           </div>
         </li>
