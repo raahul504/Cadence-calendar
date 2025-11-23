@@ -1,0 +1,40 @@
+/* CSS Custom Properties - Global Design Tokens */
+
+:root {
+  /* Primary Colors */
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --secondary: #8b5cf6;
+  --success: #10b981;
+  --danger: #ef4444;
+  
+  /* Surface Colors */
+  --background: #f8fafc;
+  --surface: #ffffff;
+  
+  /* Text Colors */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  
+  /* Border & Shadows */
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Border Radius */
+  --radius: 36px;
+  --radius-sm: 8px;
+  
+  /* Event Colors (Google Calendar inspired) */
+  --color-tomato: #d50000;
+  --color-flamingo: #e67c73;
+  --color-tangerine: #f4511e;
+  --color-banana: #f6bf26;
+  --color-sage: #33b679;
+  --color-basil: #0b8043;
+  --color-peacock: #039be5;
+  --color-blueberry: #3f51b5;
+  --color-lavender: #7986cb;
+  --color-grape: #8e24aa;
+  --color-graphite: #616161;
+}

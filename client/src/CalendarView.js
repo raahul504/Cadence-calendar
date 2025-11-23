@@ -17,23 +17,6 @@ function CalendarView({ events, selectedDate, onSelectDate, onChangeViewMode }) 
     return checkDate < today;
   };
 
-  /*const eventsForSelectedDate = events.filter(
-    e => {
-    // Create local date string without timezone conversion
-    const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-    const day = String(selectedDate.getDate()).padStart(2, '0');
-    const formatted = `${year}-${month}-${day}`;
-
-    console.log("Stored event date:", e.date);
-    console.log("Comparing with:", formatted);
-    console.log("Match?", e.date === formatted);
-
-    
-    return e.date === formatted;
-  }
-  );*/
-
   return (
     <div>
       <Calendar 

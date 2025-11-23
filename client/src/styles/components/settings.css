@@ -1,0 +1,76 @@
+.settings-trigger {
+  background: transparent;
+  border: none;
+  color: white;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.settings-trigger:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.settings-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-select {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--background);
+}
+
+.settings-popout {
+  position: absolute;
+  top: 60px;            /* adjust so it aligns under the header */
+  left: 20px;           /* dynamically adjusted below */
+  background: var(--surface);
+  padding: 0.3rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 2000;
+  width: 350px;
+  height: 525px
+}
+
+.settings-popout {
+  animation: popIn 0.2s ease-out;
+}
+
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.2); /* dimmer */
+  backdrop-filter: blur(1px);     /* optional nice blur */
+  z-index: 1999; /* lower than the popout, higher than everything else */
+  display: flex;
+  align-items: flex-start; /* keep your popout at its own position */
+  justify-content: flex-start;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

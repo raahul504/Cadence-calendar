@@ -1,0 +1,31 @@
+/* Clock */
+.clock-container {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: right;
+  /*text-align: center;*/
+  margin-bottom: 0;
+  animation: fadeIn 0.6s ease-out 0.2s both;
+}
+
+.clock-time {
+  font-size: 2.5rem;
+  /*font-size: 2rem;*/
+  font-weight: 600;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px){
+  .clock-container {
+    text-align: center;
+  }
+
+  .clock-time {
+    font-size: 2rem;
+  }
+}

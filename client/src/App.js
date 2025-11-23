@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Clock from "./clock";
 import EventForm from "./EventForm";
 import EventList from "./EventList";
 import CalendarView from "./CalendarView";
-import "./modern-calendar.css"; // Import the new CSS file
+//import "./modern-calendar.css";
+import "./styles/index.css";
 
 // API URL - will use environment variable in production, localhost in development
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -26,8 +27,11 @@ function App() {
   const [isEventListExpanded, setIsEventListExpanded] = useState(false); // ADD THIS
   const [showEventForm, setShowEventForm] = useState(false); // ADD THIS
   const [eventToDelete, setEventToDelete] = useState(null); // ADD THIS
-  const [viewMode, setViewMode] = useState("selected"); 
-
+  const [viewMode, setViewMode] = useState("selected");
+  const [showSettings, setShowSettings] = useState(false);
+  const [timeFormat, setTimeFormat] = useState("12h");
+  const [timeZone, setTimeZone] = useState("Asia/Kolkata");
+  const [isChatSidebarExpanded, setIsChatSidebarExpanded] = useState(false);
 
   // Fetch events from backend
   useEffect(() => {
@@ -74,21 +78,12 @@ function App() {
       setEventToDelete(null); // ADD THIS - Close confirmation modal
   };
 
-  const formatSelectedDate = (date) => {
-    if (!date) return "";
-    return date.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    });
-  };
-
   // Format date like "14 November 2025"
   const formatDateLong = (date) => {
     if (!date) return "";
-    return date.toLocaleDateString("en-GB", {
+    return date.toLocaleDateString("en-US", {
       day: "numeric",
-      month: "long",
+      month: "short",
       year: "numeric"
     });
   };
@@ -97,44 +92,84 @@ function App() {
   ? formatDateLong(new Date(selectedDate))
   : "";
 
-
   const handleShowAllEvents = () => {
     setViewMode("all");
   };
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setViewMode("selected");
+
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (showSettings && !settingsButtonRef.current.contains(e.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [showSettings]);
+
+  const settingsButtonRef = useRef(null);
+  const [settingsPos, setSettingsPos] = useState({ x: 0, y: 0 });
+
+  const toggleSettings = () => {
+    if (!showSettings) {
+      const rect = settingsButtonRef.current.getBoundingClientRect();
+      setSettingsPos({ x: rect.left, y: rect.bottom });
+    }
+    setShowSettings(!showSettings);
   };
 
   return (
     <div className="app-container">
     <header className="app-header">
-      <h1 className="app-title">🗓️ Cadence</h1>
+      <h1 className="app-title">
+        <button 
+          className="settings-trigger"
+          ref={settingsButtonRef}
+          onClick={() => setShowSettings(true)}
+        >
+          <span className="material-icons icon-large">settings</span>
+        </button>
+        Cadence
+      </h1>
+
       <div className="clock-container">
-        <Clock />
+        <Clock timeFormat={timeFormat} timeZone={timeZone}/>
       </div>
     </header>
 
       {/* REPLACE the main-grid section with this: */}
       <div className="calendar-layout">
         {/* Collapsible Event List Sidebar */}
-        <div className={`event-sidebar ${isEventListExpanded ? 'expanded' : ''}`}>
+        <div className={`event-sidebar ${isEventListExpanded ? 'expanded' : ''}`}
+          onClick={() => {
+              if (!isEventListExpanded) setIsEventListExpanded(true);
+            }}>
           <div className="event-sidebar-header">
-            <button 
+            {/*<button 
               className="btn-toggle-sidebar" 
               onClick={() => setIsEventListExpanded(!isEventListExpanded)}
             >
-
             {isEventListExpanded ? '◀' : '▶'}
-            </button>
+            </button>*/}
+
             {isEventListExpanded && (
               <>
-                <h2 className="sidebar-title">📋 Events</h2>
+                <button
+                  className="btn-toggle-sidebar"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEventListExpanded(false);
+                  }}
+                >
+                  <span className="material-icons icon-large">chevron_left</span>
+                  <span>Events</span>
+                </button>
                 <button 
                   className="btn btn-add-event"
                   onClick={() => setShowEventForm(true)}
                 >
-                  ➕ Add Event
+                  ➕
                 </button>
               </>
             )}
@@ -178,7 +213,9 @@ function App() {
               onEdit={(event) => {
                 setEditingEvent(event);
                 setShowEventForm(true);
-              }} 
+              }}
+              timeFormat={timeFormat}
+              timeZone={timeZone}
             />
           )}
         </div>
@@ -187,7 +224,12 @@ function App() {
         <div className={`calendar-main ${isEventListExpanded ? 'shrink' : ''}`}>
           <div className="card">
             <div className="calendar-summary">
-              <strong>📅 {selectedDate.toDateString()}</strong>
+              <strong>📅 {selectedDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              })}</strong>
               <span style={{ marginLeft: "1rem" }}>
                 {eventsForSelectedDate.length > 0
                   ? `${eventsForSelectedDate.length} event${eventsForSelectedDate.length > 1 ? 's' : ''} scheduled`
@@ -201,6 +243,35 @@ function App() {
               selectedDate={selectedDate}
             />
           </div>
+        </div>
+        
+        {/* RIGHT-SIDE CHAT SIDEBAR */}
+        <div className={`chat-sidebar ${isChatSidebarExpanded ? "expanded" : ""}`}
+        onClick={() => {
+          if (!isChatSidebarExpanded) setIsChatSidebarExpanded(true);
+        }}>
+
+          <div className="chat-sidebar-header">
+
+            {isChatSidebarExpanded && (
+              <button
+                  className="btn-toggle-sidebar" style={{width: "60%", padding: "5px 5px 5px 20px"}}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsChatSidebarExpanded(false);
+                  }}
+                >
+                  <span>Ask Cadence</span>
+                  <span className="material-icons icon-large">chevron_right</span>
+                </button>
+            )}
+          </div>
+
+          {isChatSidebarExpanded && (
+            <div className="chat-content">
+              Chat content coming soon...
+            </div>
+          )}
         </div>
       </div>
 
@@ -275,6 +346,59 @@ function App() {
           </div>
         </div>
       )}
+
+      {showSettings && (
+        <div className="settings-overlay" onClick={() => setShowSettings(false)}>
+        <div 
+          className="settings-popout" style={{ top: settingsPos.y + 126, left: settingsPos.x + 31 }}
+          onClick={(e) => e.stopPropagation()} >
+        {/*<div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal-content modal-small" onClick={(e) => e.stopPropagation()}>*/}
+            <div className="modal-header">
+              <h2 className="modal-title">⚙️ Settings</h2>
+              <button 
+                className="btn-close-modal"
+                onClick={() => toggleSettings(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+
+              {/* Universal Time Format */}
+              <div className="settings-group">
+                <label className="settings-label">Time Format</label>
+                <select 
+                  className="settings-select"
+                  onChange={(e) => setTimeFormat(e.target.value)}
+                  value={timeFormat}
+                >
+                  <option value="12h">12-hour (7:30 PM)</option>
+                  <option value="24h">24-hour (19:30)</option>
+                </select>
+              </div>
+
+              {/* Settings */}
+              <div className="settings-group">
+                <label className="settings-label">Time Zone</label>
+                <select 
+                  className="settings-select"
+                  onChange={(e) => setTimeZone(e.target.value)}
+                  value={timeZone}
+                >
+                  {Intl.supportedValuesOf("timeZone").map(tz => (
+                    <option key={tz} value={tz}>{tz}</option>
+                  ))}
+                </select>
+              </div>
+
+            </div>
+          {/*</div>*/}
+        </div>
+        </div>
+      )}
+
 
       <footer className="app-footer">
         <p>Backend running on port 5000 • Made with ❤️</p>

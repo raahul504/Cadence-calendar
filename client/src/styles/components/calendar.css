@@ -1,0 +1,128 @@
+.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-family: inherit;
+  background: var(--background);
+}
+
+.react-calendar__navigation {
+  margin-bottom: 1rem;
+}
+
+.react-calendar__navigation button {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.react-calendar__navigation button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.react-calendar__tile {
+  padding: 1rem 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.react-calendar__tile:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.react-calendar__tile--active {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.react-calendar__tile--active.event-date {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.react-calendar__tile--now {
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
+}
+
+.react-calendar__tile--now.event-date {
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
+}
+
+.react-calendar__tile--now.react-calendar__tile--active {
+  background: #fef3c7 !important;
+  color: var(--text-primary) !important;
+}
+
+/* ADD these styles for disabled calendar tiles */
+.react-calendar__tile:disabled {
+  background: transparent;
+  color: var(--text-secondary);
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.react-calendar__tile:disabled:hover {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.event-date {
+  position: relative;
+  background: rgba(99, 102, 241, 0.15) !important;
+  /*border: 1px solid var(--primary) !important;*/
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.event-date::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+}
+
+/* Calendar Main Area (Responsive) */
+.calendar-main {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.calendar-main.shrink {
+  flex: 1;
+}
+
+/* Day Summary */
+.calendar-summary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 1rem 1.5rem;
+  margin-bottom: 27px !important;
+  border-radius: 100px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 968px){
+  .calendar-layout {
+    flex-direction: column;
+  }
+
+  .calendar-main {
+    width: 100%;
+  }
+}

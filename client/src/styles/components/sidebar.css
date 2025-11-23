@@ -1,0 +1,112 @@
+/* REPLACE .main-grid with this calendar layout */
+.calendar-layout {
+  display: flex;
+  width: 100%;
+  height: 505px;
+  min-height: 505px; /* prevents shrinking */
+  overflow: hidden;
+  gap: 1rem;
+  animation: fadeIn 0.6s ease-out 0.4s both;
+  position: relative;
+}
+
+/* Event Sidebar (Collapsible) */
+.event-sidebar {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  width: 60px;
+  overflow: hidden;
+  position: relative;
+}
+
+.event-sidebar.expanded {
+  width: 350px;
+}
+
+.event-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7rem;
+  padding: 1.5rem 10px 1rem 1.5rem;
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* Sidebar Event List Styles */
+.event-sidebar .event-list {
+  padding: 1rem;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.event-sidebar .event-actions {
+  flex-direction: column;
+  width: 25%;
+}
+
+.event-sidebar .event-title {
+  font-size: 1rem;
+}
+
+.event-sidebar .btn-edit,
+.event-sidebar .btn-danger {
+  width: 50%;
+  justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 968px){
+  .calendar-layout {
+    flex-direction: column;
+  }
+
+  .event-sidebar {
+    width: 100%;
+  }
+
+  .event-sidebar.expanded {
+    width: 100%;
+  }
+}
+
+
+/* Chat Sidebar */
+.chat-sidebar {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  width: 60px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-sidebar.expanded {
+  width: 350px;
+}
+
+/* Mirror the event header */
+.chat-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem 10px;
+}
+
+/* Chat content area using same style as event list content */
+.chat-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}

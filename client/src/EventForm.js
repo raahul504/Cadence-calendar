@@ -72,8 +72,11 @@ function EventForm({ onSave, editingEvent, onCancel }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSaving) return; // prevent double clicks
+    setIsSaving(true);
 
     // ADD THIS - Validate that date/time is not in the past
     const selectedDateTime = new Date(`${form.date}T${form.time}`);
@@ -81,11 +84,12 @@ function EventForm({ onSave, editingEvent, onCancel }) {
   
     if (selectedDateTime < now) {
       alert("Cannot create events in the past. Please select a future date and time.");
+      setIsSaving(false);
       return;
     }
 
     const eventToSave = editingEvent ? { ...editingEvent, ...form } : form;
-    onSave(eventToSave);
+    await onSave(eventToSave);
     //setForm({ title: "", date: "", time: "", description: "" }); // Form will close automatically via App.js state change    
   };
 
@@ -93,6 +97,8 @@ function EventForm({ onSave, editingEvent, onCancel }) {
     onCancel();
     setForm({ title: "", date: "", time: "", description: "" });
   };
+
+  const [isSaving, setIsSaving] = useState(false);
 
   return (
     <form onSubmit={handleSubmit} className="event-form">
@@ -161,8 +167,11 @@ function EventForm({ onSave, editingEvent, onCancel }) {
       </div>
 
       <div className="form-actions">
-        <button type="submit" className="btn btn-primary" disabled={isButtonDisabled()}>
-          {editingEvent ? "💾 Update Event" : "➕ Add Event"}
+        <button type="submit" className="btn btn-primary" disabled={isButtonDisabled() || isSaving}>
+          {isSaving
+            ? (editingEvent ? "Saving..." : "Adding...")
+            : (editingEvent ? "💾 Update Event" : "➕ Add Event")
+          }
         </button>
         {editingEvent && (
           <button type="button" onClick={handleCancel} className="btn btn-secondary">

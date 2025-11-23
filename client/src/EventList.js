@@ -1,6 +1,6 @@
 import React from "react";
 
-function EventList({ events, onDelete, onEdit }) {
+function EventList({ events, onDelete, onEdit, timeFormat, timeZone }) {
   if (events.length === 0) {
     return (
       <div className="empty-state" style={{ padding: '2rem 1rem' }}>
@@ -12,15 +12,49 @@ function EventList({ events, onDelete, onEdit }) {
     );
   }
 
+  // Sort events chronologically (date + time)
+  const sortedEvents = [...events].sort((a, b) => {
+    const dateA = new Date(`${a.date}T${a.time || "00:00"}`);
+    const dateB = new Date(`${b.date}T${b.time || "00:00"}`);
+    return dateA - dateB;
+  });
+
+  const formatTime = (time) => {
+    if (!time) return "No time";
+
+    // Time coming from server: "13:00:00"
+    const [h, m] = time.split(":");
+
+    const dateObj = new Date();
+    dateObj.setHours(h, m);
+
+    return dateObj.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: timeFormat === "12h",
+      timeZone
+    });
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "No date";
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone
+    });
+  };
+
   return (
     <ul className="event-list">
-      {events.map(e => (
+      {sortedEvents.map(e => (
         <li key={e.id} className="event-item" style={{ borderLeftColor: e.color || '#3f51b5' }}>
           <div className="event-info">
             <div className="event-title">{e.title}</div>
             <div className="event-meta">
-              <span><span class="material-icons icon-small">calendar_today</span>  {e.date ? e.date.split('T')[0] : 'No date'}</span>
-              <span><span class="material-icons icon-small">access_time</span>  {e.time || 'No time'}</span>
+              <span><span class="material-icons icon-small">calendar_today</span> {formatDate(e.date)}</span>
+              <span><span class="material-icons icon-small">access_time</span> {formatTime(e.time)}</span>
             </div>
             {e.description && (
               <div className="event-description">{e.description}</div>
@@ -32,14 +66,14 @@ function EventList({ events, onDelete, onEdit }) {
               className="btn btn-edit"
               title="Edit event"
             >
-              <span className="material-icons">edit</span>
+              <span className="material-icons icon-small">edit</span>
             </button>
             <button 
               onClick={() => onDelete(e)} // CHANGE from onDelete(e.id) to onDelete(e)
               className="btn btn-danger"
               title="Delete event"
             >
-              <span className="material-icons">delete</span>
+              <span className="material-icons icon-small">delete</span>
             </button>
           </div>
         </li>

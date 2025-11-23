@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function Clock() {
+function Clock({ timeFormat, timeZone }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -8,9 +8,21 @@ function Clock() {
     return () => clearInterval(timer);
   }, []);
 
+  const day = time.toLocaleDateString("en-US", {
+    weekday: "long",
+    timeZone: timeZone
+  });
+
+  const formattedTime = time.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: timeFormat === "12h",
+    timeZone: timeZone
+  });
+
   return (
     <div className="clock-time">
-      {time.toLocaleTimeString()}
+      {`${day}, ${formattedTime}`}
     </div>
   );
 }
