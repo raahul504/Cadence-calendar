@@ -308,7 +308,22 @@ const handleEventCommand = async (commandData) => {
                 {eventsForSelectedDate.length > 0 ? `${eventsForSelectedDate.length} event${eventsForSelectedDate.length > 1 ? 's' : ''} scheduled` : "No events scheduled"}
               </span>
             </div>
-            <CalendarView events={events} onSelectDate={setSelectedDate} onChangeViewMode={setViewMode} selectedDate={selectedDate} />
+            <CalendarView events={events} onChangeViewMode={setViewMode} selectedDate={selectedDate} onSelectDate={(date) => {
+              setSelectedDate(date);
+              // Format clicked date to YYYY-MM-DD
+              const y = date.getFullYear();
+              const m = String(date.getMonth() + 1).padStart(2, "0");
+              const d = String(date.getDate()).padStart(2, "0");
+              const formatted = `${y}-${m}-${d}`;
+
+              // Check how many events match this date
+              const hasEvents = events.some(e => e.date === formatted);
+
+              if (hasEvents) {
+                setIsEventListExpanded(true);   // <-- OPEN SIDEBAR
+                setViewMode("selected");        // <-- Show events for that date
+              }
+              }}/>
           </div>
         </div>
         
