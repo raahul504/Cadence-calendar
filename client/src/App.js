@@ -31,8 +31,8 @@ function App() {
   const [timeZone, setTimeZone] = useState("Asia/Calcutta");
 
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsWidth, setSettingsWidth] = useState(0); // dynamic width during drag
-
+  const [settingsWidth, setSettingsWidth] = useState(0);
+  const [showClearChatModal, setShowClearChatModal] = useState(false);
 
   // Load settings from profile
   useEffect(() => {
@@ -41,6 +41,12 @@ function App() {
       setTimeZone(profile.timezone || "Asia/Calcutta");
     }
   }, [profile]);
+  
+  useEffect(() => {
+    window.openChatClearModal = () => {
+      setShowClearChatModal(true);
+    };
+  }, []);
 
   // Filter events for selected date
   const eventsForSelectedDate = events.filter(e => {
@@ -200,8 +206,6 @@ const handleEventCommand = async (commandData) => {
   const selectedDateFormatted = selectedDate ? formatDateLong(new Date(selectedDate)) : "";
   const handleShowAllEvents = () => setViewMode("all");
 
-
-
   useEffect(() => {
     const handleMouseMove = (e) => {
       // Peek drawer when cursor touches left 5px
@@ -340,7 +344,7 @@ const handleEventCommand = async (commandData) => {
                 className="btn-clear-chat"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.clearCadenceChat?.();   // Call ChatInterface method
+                  window.openChatClearModal();   // Call ChatInterface method
                 }}
                 title="Clear conversation"
               >
@@ -364,8 +368,7 @@ const handleEventCommand = async (commandData) => {
               userId={user.id}
               userEvents={events}
               onEventCommand={handleEventCommand}
-              onClearChatRef={(handler) => (window.clearCadenceChat = handler)}
-            />
+              onClearChatRef={(handler) => {window.confirmClearChat = handler;}}/>
           }
         </div>
       </div>
@@ -396,6 +399,45 @@ const handleEventCommand = async (commandData) => {
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setEventToDelete(null)}>Cancel</button>
               <button className="btn btn-delete-confirm" onClick={() => deleteEvent(eventToDelete.id)}>Delete Event</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showClearChatModal && (
+        <div className="modal-overlay" onClick={() => setShowClearChatModal(false)}>
+          <div className="modal-content modal-small" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">🧹 Clear Chat</h2>
+              <button className="btn-close-modal" onClick={() => setShowClearChatModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              <p className="delete-warning-text">
+                Are you sure you want to clear this conversation?
+              </p>
+              <p className="delete-warning-subtext">This action cannot be undone.</p>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowClearChatModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="btn btn-delete-confirm"
+                onClick={async () => {
+                  if (typeof window.confirmClearChat === "function") {
+                    await window.confirmClearChat();
+                  }
+                  setShowClearChatModal(false);
+                }}
+              >
+                Clear Chat
+              </button>
             </div>
           </div>
         </div>

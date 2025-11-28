@@ -181,10 +181,26 @@ function ChatInterface({ userId, userEvents, onEventCommand, onClearChatRef }) {
     }
   };
   useEffect(() => {
-    if (onClearChatRef) {
-      onClearChatRef(() => handleClearChat());
-    }
-  }, [onClearChatRef]);
+    if (!onClearChatRef) return;
+
+    const confirmFn = async () => {
+      try {
+        if (currentConversationId) {
+          await conversationHelpers.deleteConversation(currentConversationId);
+        }
+        setMessages([]);
+        setCurrentConversationId(null);
+        await initializeConversation();
+      } catch (err) {
+        console.error('Error clearing chat:', err);
+        setError('Failed to clear conversation');
+      }
+    };
+
+    onClearChatRef(confirmFn);
+    
+  }, [onClearChatRef, currentConversationId]);
+
 
 
   return (
