@@ -231,8 +231,6 @@ export const chatWithGemini = async (userMessage, conversationHistory = [], user
 
 // Helper: Generate event suggestions
 export const generateEventSuggestions = async (context, userEvents = []) => {
-  if (!genAI) return null;
-
   try {
     const eventsContext = formatEventsForContext(userEvents);
     const prompt = `${SYSTEM_PROMPT}\n\n${eventsContext}\n\nBased on the user's schedule, suggest 3 productive events or activities they could add. Consider gaps in their schedule and work-life balance. Format as a simple list.`;
@@ -264,8 +262,6 @@ export const generateEventSuggestions = async (context, userEvents = []) => {
 
 // Helper: Summarize schedule
 export const summarizeSchedule = async (timeframe, userEvents = []) => {
-  if (!genAI) return null;
-
   try {
     const eventsContext = formatEventsForContext(userEvents);
     const prompt = `${SYSTEM_PROMPT}\n\n${eventsContext}\n\nProvide a brief, friendly summary of the user's ${timeframe} schedule. Highlight the busiest days and any patterns you notice.`;
