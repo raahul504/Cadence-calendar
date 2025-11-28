@@ -1,85 +1,79 @@
+// server/index.js - Simple Gemini Proxy
 const express = require("express");
 const cors = require("cors");
-const { pool, initDB } = require('./db');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
-app.use(cors());
+
+// CORS - restrict to your Vercel domain in production
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}));
+
 app.use(express.json());
 
-// Initialize database on startup
-initDB();
+// Initialize Gemini
+const genAI = process.env.GEMINI_API_KEY 
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  : null;
 
-// Get all events
-app.get("/events", async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM events ORDER BY date, time');
-    const formattedEvents = result.rows.map(event => ({
-      ...event,
-      date: event.date instanceof Date 
-        ? `${event.date.getFullYear()}-${String(event.date.getMonth() + 1).padStart(2, '0')}-${String(event.date.getDate()).padStart(2, '0')}`
-        : event.date
-    }));
-    res.json(formattedEvents);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database error' });
-  }
+// Health check
+app.get("/", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "Cadence Gemini Proxy",
+    geminiConfigured: !!genAI 
+  });
 });
 
-// Create event
-app.post("/events", async (req, res) => {
-   const { title, date, time, description, color } = req.body;
+// Simple proxy endpoint - just forwards to Gemini
+app.post("/api/chat", async (req, res) => {
   try {
-    const result = await pool.query(
-      'INSERT INTO events (title, date, time, description, color) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [title, date, time, description, color]
-    );
-    const formattedEvent = {
-      ...result.rows[0],
-      date: result.rows[0].date instanceof Date 
-        ? `${result.rows[0].date.getFullYear()}-${String(result.rows[0].date.getMonth() + 1).padStart(2, '0')}-${String(result.rows[0].date.getDate()).padStart(2, '0')}`
-        : result.rows[0].date
-    };
-    res.json(formattedEvent);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
+    if (!genAI) {
+      return res.status(500).json({ 
+        error: "Gemini API not configured on server" 
+      });
+    }
 
-// Update event
-app.put("/events/:id", async (req, res) => {
-  const { id } = req.params;
-  const { title, date, time, description, color } = req.body;
-  try {
-    const result = await pool.query(
-      'UPDATE events SET title=$1, date=$2, time=$3, description=$4, color=$5 WHERE id=$6 RETURNING *',
-      [title, date, time, description, color, id]
-    );
-    const formattedEvent = {
-      ...result.rows[0],
-      date: result.rows[0].date instanceof Date 
-        ? `${result.rows[0].date.getFullYear()}-${String(result.rows[0].date.getMonth() + 1).padStart(2, '0')}-${String(result.rows[0].date.getDate()).padStart(2, '0')}`
-        : result.rows[0].date
-    };
-    res.json(formattedEvent);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
+    const { history, message, generationConfig } = req.body;
 
-// Delete event
-app.delete("/events/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query('DELETE FROM events WHERE id=$1', [id]);
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Database error' });
+    // Validate input
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ 
+        error: "Invalid message format" 
+      });
+    }
+
+    // Forward to Gemini
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const chat = model.startChat({
+      history: history || [],
+      generationConfig: generationConfig || {
+        maxOutputTokens: 1000,
+        temperature: 0.7,
+      }
+    });
+
+    const result = await chat.sendMessage(message);
+    const response = result.response.text();
+
+    res.json({ 
+      success: true, 
+      response 
+    });
+
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    res.status(500).json({ 
+      error: "Failed to get AI response",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Cadence Gemini Proxy running on port ${PORT}`);
+  console.log(`📡 Gemini API: ${genAI ? 'Configured ✅' : 'Missing ❌'}`);
+});

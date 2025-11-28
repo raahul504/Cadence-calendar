@@ -7,10 +7,23 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #FFEFD9 0%, #FFEACC 47%, #FFE2B8 86%, #FFD79F 100%);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global UI font */
+body, button, input, textarea {
+  font-family: "Inter", sans-serif;
+}
+
+@font-face {
+  font-family: "SAO Torpes";
+  src: url("../../public/fonts/SaoTorpes.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* App Container */

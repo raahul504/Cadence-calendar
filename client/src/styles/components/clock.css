@@ -1,5 +1,6 @@
 /* Clock */
 .clock-container {
+  font-family: "SAO Torpes", sans-serif !important;
   background: transparent;
   padding: 0;
   border-radius: 0;
@@ -11,12 +12,14 @@
 }
 
 .clock-time {
-  font-size: 2.5rem;
-  /*font-size: 2rem;*/
-  font-weight: 600;
-  color: white;
+  transform: scaleY(1.3);
+  display: inline-block;
+  -webkit-text-stroke: 1px chocolate;
+  font-size: 3rem;
+  font-weight: 150;
+  color: var(--header-text);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /*text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);*/
 }
 
 /* Responsive Design */

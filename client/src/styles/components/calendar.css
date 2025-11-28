@@ -57,8 +57,8 @@
 }
 
 .react-calendar__tile--now.react-calendar__tile--active {
-  background: #fef3c7 !important;
-  color: var(--text-primary) !important;
+  background: var(--primary) !important;
+  color: white !important;
 }
 
 /* ADD these styles for disabled calendar tiles */

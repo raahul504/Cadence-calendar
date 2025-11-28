@@ -22,7 +22,7 @@ function Clock({ timeFormat, timeZone }) {
 
   return (
     <div className="clock-time">
-      {`${day}, ${formattedTime}`}
+      {`${formattedTime}`}
     </div>
   );
 }

@@ -2,10 +2,11 @@
 .calendar-layout {
   display: flex;
   width: 100%;
-  height: 505px;
+  height: 522px;
   min-height: 505px; /* prevents shrinking */
   overflow: hidden;
   gap: 1rem;
+  padding-top: 5px;
   animation: fadeIn 0.6s ease-out 0.4s both;
   position: relative;
 }
@@ -13,6 +14,7 @@
 /* Event Sidebar (Collapsible) */
 .event-sidebar {
   background: var(--surface);
+  border: 2px solid chocolate ;
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
@@ -28,8 +30,9 @@
 .event-sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 7rem;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-direction: row;
   padding: 1.5rem 10px 1rem 1.5rem;
 }
 
@@ -44,14 +47,14 @@
 
 /* Sidebar Event List Styles */
 .event-sidebar .event-list {
-  padding: 1rem;
+  padding: 0.8rem 1rem 1rem;
   max-height: calc(100vh - 300px);
   overflow-y: auto;
 }
 
 .event-sidebar .event-actions {
   flex-direction: column;
-  width: 25%;
+  width: 15%;
 }
 
 .event-sidebar .event-title {
@@ -64,31 +67,21 @@
   justify-content: center;
 }
 
-/* Responsive Design */
-@media (max-width: 968px){
-  .calendar-layout {
-    flex-direction: column;
-  }
-
-  .event-sidebar {
-    width: 100%;
-  }
-
-  .event-sidebar.expanded {
-    width: 100%;
-  }
-}
-
-
 /* Chat Sidebar */
 .chat-sidebar {
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
+  border: 2px solid chocolate ;
   transition: all 0.3s ease;
   width: 60px;
   overflow: hidden;
   position: relative;
+  height: 100%;
+  max-height: 522px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .chat-sidebar.expanded {
@@ -99,7 +92,7 @@
 .chat-sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
   padding: 1.5rem 1.5rem 1rem 10px;
 }
@@ -109,4 +102,49 @@
   flex: 1;
   padding: 1rem;
   overflow-y: auto;
+}
+
+/* -------- Rotated Sidebar Labels -------- */
+.sidebar-vertical-label {
+  position: absolute;
+  top: 50%;
+  transform-origin: center;
+  color: linear-gradient(135deg, var(--primary), var(--secondary));
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  pointer-events: none; /* Prevent blocking clicks */
+  white-space: nowrap;
+}
+
+/* Left sidebar → rotate 90° clockwise */
+.sidebar-vertical-label.left {
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+/* Right sidebar → rotate 90° counter-clockwise */
+.sidebar-vertical-label.right {
+  right: 50%;
+  transform: translate(50%, -50%) rotate(90deg);
+}
+
+
+/* Responsive Design */
+@media (max-width: 968px){
+  .calendar-layout {
+    flex-direction: column;
+    height: auto;          /* <— allow content to grow */
+    min-height: auto;      /* <— remove fixed height */
+    overflow: visible;     /* <— don't hide stacked sidebars */
+  }
+
+  .event-sidebar, .chat-sidebar {
+    width: 100%;
+  }
+
+  .event-sidebar.expanded, .chat-sidebar.expanded {
+    width: 100%;
+  }
 }

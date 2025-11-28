@@ -49,12 +49,12 @@ function EventList({ events, onDelete, onEdit, timeFormat, timeZone }) {
   return (
     <ul className="event-list">
       {sortedEvents.map(e => (
-        <li key={e.id} className="event-item" style={{ borderLeftColor: e.color || '#3f51b5' }}>
+        <li key={e.id} className="event-item" style={{ backgroundColor: e.color || "#3f51b5" }}>
           <div className="event-info">
             <div className="event-title">{e.title}</div>
             <div className="event-meta">
-              <span><span class="material-icons icon-small">calendar_today</span> {formatDate(e.date)}</span>
-              <span><span class="material-icons icon-small">access_time</span> {formatTime(e.time)}</span>
+              <span><span className="material-icons icon-small">calendar_today</span> {formatDate(e.date)}</span>
+              <span><span className="material-icons icon-small">access_time</span> {formatTime(e.time)}</span>
             </div>
             {e.description && (
               <div className="event-description">{e.description}</div>
@@ -73,7 +73,7 @@ function EventList({ events, onDelete, onEdit, timeFormat, timeZone }) {
               className="btn btn-danger"
               title="Delete event"
             >
-              <span className="material-icons icon-small">delete</span>
+              <span className="material-icons icon-small">delete_outline</span>
             </button>
           </div>
         </li>

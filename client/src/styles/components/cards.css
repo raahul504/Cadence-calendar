@@ -2,6 +2,7 @@
 .card {
   background: var(--surface);
   border-radius: var(--radius);
+  border: 2px solid chocolate ;
   padding: 1.5rem 2rem;
   height: 100%;
   box-shadow: var(--shadow-lg);

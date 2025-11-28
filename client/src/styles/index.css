@@ -1,4 +1,5 @@
 /* Main CSS Entry Point - Modularized Calendar App Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
 /* 1. Variables & Tokens */
 @import './variables.css';
@@ -19,7 +20,9 @@
 @import './components/event-form.css';
 @import './components/calendar.css';
 @import './components/modal.css';
-@import './components/settings.css'
+@import './components/settings.css';
+@import './components/auth.css';
+@import './components/chat.css';
 
 /* 
   📁 Modular CSS Structure:

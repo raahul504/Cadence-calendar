@@ -1,21 +1,48 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useAuth } from "./contexts/AuthContext";
+import { eventHelpers } from "./lib/supabase";
 import Clock from "./clock";
 import EventForm from "./EventForm";
 import EventList from "./EventList";
 import CalendarView from "./CalendarView";
-//import "./modern-calendar.css";
+import ChatInterface from "./ChatInterface"; 
+import AuthPage from "./pages/AuthPage";
 import "./styles/index.css";
 
-// API URL - will use environment variable in production, localhost in development
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
 function App() {
+  const { user, profile, loading: authLoading, signOut, updateProfile } = useAuth();
+  
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
   });
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [isEventListExpanded, setIsEventListExpanded] = useState(false);
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [viewMode, setViewMode] = useState("selected");
+  const [isChatSidebarExpanded, setIsChatSidebarExpanded] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Local state for settings
+  const [timeFormat, setTimeFormat] = useState("12h");
+  const [timeZone, setTimeZone] = useState("Asia/Calcutta");
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsWidth, setSettingsWidth] = useState(0); // dynamic width during drag
+
+
+  // Load settings from profile
+  useEffect(() => {
+    if (profile) {
+      setTimeFormat(profile.time_format || "12h");
+      setTimeZone(profile.timezone || "Asia/Calcutta");
+    }
+  }, [profile]);
+
+  // Filter events for selected date
   const eventsForSelectedDate = events.filter(e => {
     const year = selectedDate.getFullYear();
     const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
@@ -23,62 +50,144 @@ function App() {
     const selectedYYYYMMDD = `${year}-${month}-${day}`;
     return e.date === selectedYYYYMMDD;
   });
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [isEventListExpanded, setIsEventListExpanded] = useState(false); // ADD THIS
-  const [showEventForm, setShowEventForm] = useState(false); // ADD THIS
-  const [eventToDelete, setEventToDelete] = useState(null); // ADD THIS
-  const [viewMode, setViewMode] = useState("selected");
-  const [showSettings, setShowSettings] = useState(false);
-  const [timeFormat, setTimeFormat] = useState("12h");
-  const [timeZone, setTimeZone] = useState("Asia/Kolkata");
-  const [isChatSidebarExpanded, setIsChatSidebarExpanded] = useState(false);
 
-  // Fetch events from backend
+  // Fetch events when user is authenticated
   useEffect(() => {
-    fetch(`${API_URL}/events`)
-      .then(res => res.json())
-      .then(data => setEvents(data));
-  }, []);
+    if (user) {
+      loadEvents();
+    } else {
+      setEvents([]);
+    }
+  }, [user]);
+
+  const loadEvents = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { data, error } = await eventHelpers.getEvents(user.id);
+      if (error) throw error;
+      
+      const formattedEvents = data.map(event => ({
+        ...event,
+        date: event.date instanceof Date 
+          ? `${event.date.getFullYear()}-${String(event.date.getMonth() + 1).padStart(2, '0')}-${String(event.date.getDate()).padStart(2, '0')}`
+          : event.date
+      }));
+      
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error("Error loading events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const saveEvent = async (event) => {
     try {
       if (event.id) {
-        // Existing event — update
-        await fetch(`${API_URL}/events/${event.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(event),
-        });
-
-        setEvents((prev) =>
-          prev.map((e) => (e.id === event.id ? { ...e, ...event } : e))
-        );
+        const { data, error } = await eventHelpers.updateEvent(event.id, event);
+        if (error) throw error;
+        setEvents((prev) => prev.map((e) => (e.id === event.id ? { ...e, ...data } : e)));
       } else {
-        // New event — add
-        const res = await fetch(`${API_URL}/events`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(event),
-        });
-        const newEvent = await res.json();
-        setEvents((prev) => [...prev, { ...event, id: newEvent.id }]);
+        const { data, error } = await eventHelpers.createEvent(user.id, event);
+        if (error) throw error;
+        const formattedEvent = {
+          ...data,
+          date: data.date instanceof Date 
+            ? `${data.date.getFullYear()}-${String(data.date.getMonth() + 1).padStart(2, '0')}-${String(data.date.getDate()).padStart(2, '0')}`
+            : data.date
+        };
+        setEvents((prev) => [...prev, formattedEvent]);
       }
-
       setEditingEvent(null);
       setShowEventForm(false);
     } catch (error) {
       console.error("Error saving event:", error);
+      alert("Failed to save event. Please try again.");
     }
   };
 
-  // Delete event
-  const deleteEvent = (id) => {
-    fetch(`${API_URL}/events/${id}`, { method: "DELETE" })
-      .then(() => setEvents(events.filter(e => e.id !== id)));
-      setEventToDelete(null); // ADD THIS - Close confirmation modal
+  const deleteEvent = async (id) => {
+    try {
+      const { error } = await eventHelpers.deleteEvent(id);
+      if (error) throw error;
+      setEvents(events.filter(e => e.id !== id));
+      setEventToDelete(null);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Failed to delete event. Please try again.");
+    }
   };
 
-  // Format date like "14 November 2025"
+  // NEW - Handle AI event commands
+const handleEventCommand = async (commandData) => {
+  console.log('=== handleEventCommand called ===');
+  console.log('Raw commandData:', commandData);
+  console.log('Type:', typeof commandData);
+  
+  try {
+    // Handle different input formats
+    let commands = [];
+    
+    if (Array.isArray(commandData)) {
+      commands = commandData;
+      console.log('Format: Array');
+    } else if (commandData?.commands) {
+      commands = commandData.commands;
+      console.log('Format: Has commands property');
+    } else if (commandData?.command) {
+      commands = [commandData.command];
+      console.log('Format: Has command property');
+    } else if (commandData?.action) {
+      commands = [commandData];
+      console.log('Format: Single command object');
+    } else {
+      console.log('Invalid command data:', commandData);
+      return;
+    }
+    
+    console.log('Commands to execute:', commands);
+    
+    for (const command of commands) {
+      console.log('Executing command:', command);
+      
+      switch (command.action) {
+        case 'create_event':
+          if (command.data) {
+            console.log('Creating event:', command.data);
+            await saveEvent(command.data);
+          }
+          break;
+          
+        case 'update_event':
+          if (command.data && command.data.id) {
+            console.log('Updating event:', command.data);
+            await saveEvent(command.data);
+          }
+          break;
+          
+        case 'delete_event':
+          if (command.data && command.data.id) {
+            console.log('Deleting event:', command.data.id);
+            await deleteEvent(command.data.id);
+          }
+          break;
+          
+        default:
+          console.log('Unknown command:', command.action);
+      }
+    }
+    
+    await loadEvents();
+    console.log('Events reloaded');
+    
+  } catch (error) {
+    console.error('Error executing AI command:', error);
+    throw error;
+  }
+};
+
   const formatDateLong = (date) => {
     if (!date) return "";
     return date.toLocaleDateString("en-US", {
@@ -88,321 +197,281 @@ function App() {
     });
   };
 
-  const selectedDateFormatted = selectedDate 
-  ? formatDateLong(new Date(selectedDate))
-  : "";
+  const selectedDateFormatted = selectedDate ? formatDateLong(new Date(selectedDate)) : "";
+  const handleShowAllEvents = () => setViewMode("all");
 
-  const handleShowAllEvents = () => {
-    setViewMode("all");
-  };
 
 
   useEffect(() => {
-    const handler = (e) => {
-      if (showSettings && !settingsButtonRef.current.contains(e.target)) {
-        setShowSettings(false);
+    const handleMouseMove = (e) => {
+      // Peek drawer when cursor touches left 5px
+      if (!settingsOpen && e.clientX <= 5) {
+        setSettingsWidth(30);
+      } else if (!settingsOpen) {
+        setSettingsWidth(0);
       }
     };
 
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, [showSettings]);
+    const handleMouseDown = (e) => {
+      // Click-to-open when clicking within the left 15px zone
+      if (!settingsOpen && e.clientX <= 15) {
+        setSettingsOpen(true);
+        setSettingsWidth(320);
+      }
+    };
 
-  const settingsButtonRef = useRef(null);
-  const [settingsPos, setSettingsPos] = useState({ x: 0, y: 0 });
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousedown", handleMouseDown);
 
-  const toggleSettings = () => {
-    if (!showSettings) {
-      const rect = settingsButtonRef.current.getBoundingClientRect();
-      setSettingsPos({ x: rect.left, y: rect.bottom });
-    }
-    setShowSettings(!showSettings);
-  };
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousedown", handleMouseDown);
+    };
+  }, [settingsOpen]);
+
+  if (authLoading) {
+    return (
+      <div className="app-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <h2>Loading...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   return (
     <div className="app-container">
-    <header className="app-header">
-      <h1 className="app-title">
-        <button 
-          className="settings-trigger"
-          ref={settingsButtonRef}
-          onClick={() => setShowSettings(true)}
-        >
-          <span className="material-icons icon-large">settings</span>
-        </button>
-        Cadence
-      </h1>
+      <header className="app-header">
+        <div className="header-left">
+         
+          <span className="header-date">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric"
+            })}
+          </span>
+        </div>
 
-      <div className="clock-container">
-        <Clock timeFormat={timeFormat} timeZone={timeZone}/>
-      </div>
-    </header>
-
-      {/* REPLACE the main-grid section with this: */}
+        <div className="clock-container">
+          <Clock timeFormat={timeFormat} timeZone={timeZone}/>
+        </div>
+      </header>
       <div className="calendar-layout">
-        {/* Collapsible Event List Sidebar */}
         <div className={`event-sidebar ${isEventListExpanded ? 'expanded' : ''}`}
-          onClick={() => {
-              if (!isEventListExpanded) setIsEventListExpanded(true);
-            }}>
+          onClick={() => { if (!isEventListExpanded) setIsEventListExpanded(true); }}>
           <div className="event-sidebar-header">
-            {/*<button 
-              className="btn-toggle-sidebar" 
-              onClick={() => setIsEventListExpanded(!isEventListExpanded)}
-            >
-            {isEventListExpanded ? '◀' : '▶'}
-            </button>*/}
+            {!isEventListExpanded && (
+              <div className="sidebar-vertical-label left">Events</div>
+            )}
 
             {isEventListExpanded && (
               <>
-                <button
-                  className="btn-toggle-sidebar"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEventListExpanded(false);
-                  }}
-                >
+                <button className="btn-toggle-sidebar" onClick={(e) => { e.stopPropagation(); setIsEventListExpanded(false); }}>
                   <span className="material-icons icon-large">chevron_left</span>
                   <span>Events</span>
                 </button>
-                <button 
-                  className="btn btn-add-event"
-                  onClick={() => setShowEventForm(true)}
-                >
-                  ➕
-                </button>
+                <button className="btn btn-add-event" onClick={() => setShowEventForm(true)}>➕</button>
               </>
             )}
           </div>
 
-          {/* ---- NEW event list header ---- */}
           {isEventListExpanded && (
             <div className="event-list-header">
-                <div className="event-list-title">
-                    {viewMode === "all" 
-                        ? "All Events"
-                        : `Events for ${selectedDateFormatted}`
-                    }
-                </div>
-
-                {viewMode !== "all" && (
-                    <button 
-                        className="all-events-btn"
-                        onClick={handleShowAllEvents}
-                    >
-                        All Events
-                    </button>
-                )}
+              <div className="event-list-title">
+                {viewMode === "all" ? "All Events" : `Events for ${selectedDateFormatted}`}
+              </div>
+              {viewMode !== "all" && <button className="all-events-btn" onClick={handleShowAllEvents}>All Events</button>}
             </div>
           )} 
 
           {isEventListExpanded && (
-            <EventList 
-              events={
-                viewMode === "all" 
-                  ? events 
-                  : events.filter(e => {
-                    const year = selectedDate.getFullYear();
-                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                    const day = String(selectedDate.getDate()).padStart(2, '0');
-                    const selectedYYYYMMDD = `${year}-${month}-${day}`;
-                    return e.date === selectedYYYYMMDD;
-                  })
-              }
-              onDelete={setEventToDelete} // CHANGE THIS - Pass setEventToDelete instead of deleteEvent 
-              onEdit={(event) => {
-                setEditingEvent(event);
-                setShowEventForm(true);
-              }}
-              timeFormat={timeFormat}
-              timeZone={timeZone}
-            />
+            loading ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading events...</div>
+            ) : (
+              <EventList events={viewMode === "all" ? events : eventsForSelectedDate} onDelete={setEventToDelete}
+                onEdit={(event) => { setEditingEvent(event); setShowEventForm(true); }}
+                timeFormat={timeFormat} timeZone={timeZone} />
+            )
           )}
         </div>
 
-        {/* Calendar View */}
         <div className={`calendar-main ${isEventListExpanded ? 'shrink' : ''}`}>
           <div className="card">
             <div className="calendar-summary">
-              <strong>📅 {selectedDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              })}</strong>
+              <strong>{selectedDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</strong>
               <span style={{ marginLeft: "1rem" }}>
-                {eventsForSelectedDate.length > 0
-                  ? `${eventsForSelectedDate.length} event${eventsForSelectedDate.length > 1 ? 's' : ''} scheduled`
-                  : "No events scheduled"}
+                {eventsForSelectedDate.length > 0 ? `${eventsForSelectedDate.length} event${eventsForSelectedDate.length > 1 ? 's' : ''} scheduled` : "No events scheduled"}
               </span>
             </div>
-            <CalendarView 
-              events={events} 
-              onSelectDate={setSelectedDate}
-              onChangeViewMode={setViewMode} 
-              selectedDate={selectedDate}
-            />
+            <CalendarView events={events} onSelectDate={setSelectedDate} onChangeViewMode={setViewMode} selectedDate={selectedDate} />
           </div>
         </div>
         
-        {/* RIGHT-SIDE CHAT SIDEBAR */}
         <div className={`chat-sidebar ${isChatSidebarExpanded ? "expanded" : ""}`}
-        onClick={() => {
-          if (!isChatSidebarExpanded) setIsChatSidebarExpanded(true);
-        }}>
-
+          onClick={() => { if (!isChatSidebarExpanded) setIsChatSidebarExpanded(true); }}>
           <div className="chat-sidebar-header">
-
-            {isChatSidebarExpanded && (
-              <button
-                  className="btn-toggle-sidebar" style={{width: "60%", padding: "5px 5px 5px 20px"}}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsChatSidebarExpanded(false);
-                  }}
-                >
-                  <span>Ask Cadence</span>
-                  <span className="material-icons icon-large">chevron_right</span>
-                </button>
+            {!isChatSidebarExpanded && (
+              <div className="sidebar-vertical-label right">Ask Cadence</div>
             )}
-          </div>
 
           {isChatSidebarExpanded && (
-            <div className="chat-content">
-              Chat content coming soon...
-            </div>
+            <>
+              <button
+                className="btn-clear-chat"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.clearCadenceChat?.();   // Call ChatInterface method
+                }}
+                title="Clear conversation"
+              >
+                <span className="material-icons icon-medium">delete_outline</span>
+              </button>
+
+              <button className="btn-toggle-sidebar" 
+                style={{ width: "60%", padding: "5px 5px 5px 20px" }}
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setIsChatSidebarExpanded(false); 
+                }}>
+                <span>Ask Cadence</span>
+                <span className="material-icons icon-large">chevron_right</span>
+              </button>
+            </>
           )}
+
+          </div>
+          {isChatSidebarExpanded && <ChatInterface 
+              userId={user.id}
+              userEvents={events}
+              onEventCommand={handleEventCommand}
+              onClearChatRef={(handler) => (window.clearCadenceChat = handler)}
+            />
+          }
         </div>
       </div>
 
-      {/* REPLACE Event Form with Modal */}
       {showEventForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowEventForm(false);
-          setEditingEvent(null);
-        }}>
+        <div className="modal-overlay" onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">
-                {editingEvent ? "✏️ Edit Event" : "➕ Create Event"}
-              </h2>
-              <button 
-                className="btn-close-modal"
-                onClick={() => {
-                  setShowEventForm(false);
-                  setEditingEvent(null);
-                }}
-              >
-                ✕
-              </button>
+              <h2 className="modal-title">{editingEvent ? "✏️ Edit Event" : "➕ Create Event"}</h2>
+              <button className="btn-close-modal" onClick={() => { setShowEventForm(false); setEditingEvent(null); }}>✕</button>
             </div>
-            <EventForm 
-              onSave={saveEvent} 
-              editingEvent={editingEvent} 
-              onCancel={() => {
-                setShowEventForm(false);
-                setEditingEvent(null);
-              }} 
-            />
+            <EventForm onSave={saveEvent} editingEvent={editingEvent} onCancel={() => { setShowEventForm(false); setEditingEvent(null); }} />
           </div>
         </div>
       )}
 
-      {/* ADD THIS - Delete Confirmation Modal */}
       {eventToDelete && (
         <div className="modal-overlay" onClick={() => setEventToDelete(null)}>
           <div className="modal-content modal-small" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">⚠️ Delete Event</h2>
-              <button 
-                className="btn-close-modal"
-                onClick={() => setEventToDelete(null)}
-              >
-                ✕
-              </button>
+              <button className="btn-close-modal" onClick={() => setEventToDelete(null)}>✕</button>
             </div>
             <div className="modal-body">
-              <p className="delete-warning-text">
-                Are you sure you want to delete <strong>"{eventToDelete.title}"</strong>?
-              </p>
-              <p className="delete-warning-subtext">
-                This action cannot be undone.
-              </p>
+              <p className="delete-warning-text">Are you sure you want to delete <strong>"{eventToDelete.title}"</strong>?</p>
+              <p className="delete-warning-subtext">This action cannot be undone.</p>
             </div>
             <div className="modal-actions">
-              <button 
-                className="btn btn-secondary"
-                onClick={() => setEventToDelete(null)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="btn btn-delete-confirm"
-                onClick={() => deleteEvent(eventToDelete.id)}
-              >
-                Delete Event
-              </button>
+              <button className="btn btn-secondary" onClick={() => setEventToDelete(null)}>Cancel</button>
+              <button className="btn btn-delete-confirm" onClick={() => deleteEvent(eventToDelete.id)}>Delete Event</button>
             </div>
           </div>
         </div>
       )}
 
-      {showSettings && (
-        <div className="settings-overlay" onClick={() => setShowSettings(false)}>
-        <div 
-          className="settings-popout" style={{ top: settingsPos.y + 126, left: settingsPos.x + 31 }}
-          onClick={(e) => e.stopPropagation()} >
-        {/*<div className="modal-overlay" onClick={() => setShowSettings(false)}>
-          <div className="modal-content modal-small" onClick={(e) => e.stopPropagation()}>*/}
-            <div className="modal-header">
-              <h2 className="modal-title">⚙️ Settings</h2>
-              <button 
-                className="btn-close-modal"
-                onClick={() => toggleSettings(false)}
+      {/* Settings Drawer */}
+      <div
+        className="settings-drawer"
+        style={{
+          width: `${settingsWidth}px`,
+        }}
+      >
+        <div className="settings-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h2 className="modal-title">⚙️ Settings</h2>
+            <button
+              className="btn-close-modal"
+              onClick={() => {
+                setSettingsOpen(false);
+                setSettingsWidth(0);
+              }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="modal-body">
+            <div className="settings-group">
+              <label className="settings-label">Signed in as</label>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                {profile?.full_name || user?.email}
+              </p>
+            </div>
+            <div className="settings-group">
+              <label className="settings-label">Time Format</label>
+              <select
+                className="settings-select"
+                value={timeFormat}
+                onChange={async (e) => {
+                  const newFormat = e.target.value;
+                  setTimeFormat(newFormat);
+                  // auto-save to Supabase
+                  await updateProfile({ time_format: newFormat });
+                }}
               >
-                ✕
-              </button>
+                <option value="12h">12-hour (7:30 PM)</option>
+                <option value="24h">24-hour (19:30)</option>
+              </select>
             </div>
+            <div className="settings-group">
+              <label className="settings-label">Time Zone</label>
+              <select
+                className="settings-select"
+                value={timeZone}
+                onChange={async (e) => {
+                  const newZone = e.target.value;
+                  setTimeZone(newZone);
 
-            <div className="modal-body">
-
-              {/* Universal Time Format */}
-              <div className="settings-group">
-                <label className="settings-label">Time Format</label>
-                <select 
-                  className="settings-select"
-                  onChange={(e) => setTimeFormat(e.target.value)}
-                  value={timeFormat}
-                >
-                  <option value="12h">12-hour (7:30 PM)</option>
-                  <option value="24h">24-hour (19:30)</option>
-                </select>
-              </div>
-
-              {/* Settings */}
-              <div className="settings-group">
-                <label className="settings-label">Time Zone</label>
-                <select 
-                  className="settings-select"
-                  onChange={(e) => setTimeZone(e.target.value)}
-                  value={timeZone}
-                >
-                  {Intl.supportedValuesOf("timeZone").map(tz => (
-                    <option key={tz} value={tz}>{tz}</option>
-                  ))}
-                </select>
-              </div>
-
+                  // auto-save to Supabase
+                  await updateProfile({ timezone: newZone });
+                }}
+              >
+                {Intl.supportedValuesOf("timeZone").map((tz) => (
+                  <option key={tz} value={tz}>
+                    {tz}
+                  </option>
+                ))}
+              </select>
             </div>
-          {/*</div>*/}
+            <div style={{ display: "flex", gap: "0.5rem", marginTop: "1.5rem" }}>
+            </div>
+            <button className="btn sign-out-btn" onClick={signOut}>
+              Sign Out
+            </button>
+          </div>
         </div>
-        </div>
+      </div>
+
+      {/* Background Overlay */}
+      {settingsOpen && (
+        <div
+          className="settings-overlay"
+          onClick={() => {
+            setSettingsOpen(false);
+            setSettingsWidth(0);
+          }}
+        ></div>
       )}
-
-
-      <footer className="app-footer">
-        <p>Backend running on port 5000 • Made with ❤️</p>
-      </footer>
+      {/*<footer className="app-footer">
+        <p>Welcome, {profile?.full_name || user?.email} • Made with ❤️</p>
+      </footer>*/}
     </div>
   );
 }
