@@ -1,38 +1,49 @@
 .react-calendar {
   width: 100% !important;
-  border: none !important;
+  background: transparent;
+
   border-radius: var(--radius);
-  padding: 1rem;
+  padding: 1.5rem;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);  /* glass edge */
+  box-shadow: inset 0 0 55px rgba(255, 255, 255, 0.06);
   font-family: inherit;
-  background: var(--background);
 }
 
 .react-calendar__navigation {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .react-calendar__navigation button {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.2s;
 }
 
 .react-calendar__navigation button:hover {
-  background: var(--primary);
+  background: rgba(255, 255, 255, 0.18) !important;
   color: white;
 }
 
+.react-calendar__month-view__weekdays {
+    color: var(--text-primary);
+}
+
 .react-calendar__tile {
+  margin: 0.5rem;
   padding: 1rem 0.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.2s;
   font-weight: 500;
 }
 
 .react-calendar__tile:hover {
-  background: var(--primary);
+  background: rgba(255, 255, 255, 0.18) !important;
   color: white;
 }
 
@@ -42,18 +53,54 @@
 }
 
 .react-calendar__tile--active.event-date {
-  background: var(--primary) !important;
+  background: var(--primary) !important; /* dimmed tile */
   color: white !important;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .react-calendar__tile--now {
-  background: #fef3c7 !important;
-  color: var(--text-primary) !important;
+  position: relative;
+  background: rgba(255, 233, 180, 0.10) !important;  /* faint warm tint */
+  color: white !important;
+  border-radius: 12px;
+  overflow: hidden; /* ensures glow stays inside */
+}
+
+/* inner radial glow */
+.react-calendar__tile--now::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: radial-gradient(
+    circle at 80% 80%,
+    rgba(255, 233, 180, 0.35),   /* brighter warm glow */
+    rgba(0, 0, 0, 0) 65%
+  );
+  pointer-events: none;
+  z-index: -1; /* stays behind the date number */
 }
 
 .react-calendar__tile--now.event-date {
-  background: #fef3c7 !important;
-  color: var(--text-primary) !important;
+  background: transparent;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+
+.react-calendar__tile--now.event-date::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 233, 180, 0.35),
+    rgba(0,0,0,0) 70%
+  );
+  pointer-events: none;
 }
 
 .react-calendar__tile--now.react-calendar__tile--active {
@@ -75,13 +122,23 @@
 }
 
 .event-date {
+  background: transparent;
+
+  box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.18);
+
+  color: white !important;
+  font-weight: 300;
+
+  border-radius: 10px;
   position: relative;
-  background: rgba(99, 102, 241, 0.15) !important;
-  /*border: 1px solid var(--primary) !important;*/
-  color: var(--text-primary) !important;
-  font-weight: 600;
+  transition: 0.25s ease;
+  width: 70%;
 }
 
+.event-date:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+}
 .event-date::after {
   content: '';
   position: absolute;
@@ -90,7 +147,7 @@
   transform: translateX(-50%);
   width: 24px;
   height: 3px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.75);
   border-radius: 2px;
 }
 
@@ -106,12 +163,19 @@
 
 /* Day Summary */
 .calendar-summary {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.85), rgba(var(--secondary-rgb), 0.75));
+
+  /* --- GLASS EFFECT LAYER --- */
+  background-blend-mode: overlay;
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.08);
+  
   color: white;
   padding: 1rem 1.5rem;
-  margin-bottom: 27px !important;
   border-radius: 100px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   font-weight: 500;
   text-align: center;
 }

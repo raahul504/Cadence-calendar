@@ -1,11 +1,12 @@
-// server/index.js - Simple Gemini Proxy
+// server/index.js - Gemini Proxy (Netlify-ready)
 const express = require("express");
 const cors = require("cors");
+const serverless = require("serverless-http");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
 
-// CORS - restrict to your Vercel domain in production
+// CORS - restrict to your frontend domain in production
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
@@ -72,8 +73,14 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Cadence Gemini Proxy running on port ${PORT}`);
-  console.log(`📡 Gemini API: ${genAI ? 'Configured ✅' : 'Missing ❌'}`);
-});
+// Local development server (optional - for testing locally)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Cadence Gemini Proxy running on port ${PORT}`);
+    console.log(`📡 Gemini API: ${genAI ? 'Configured ✅' : 'Missing ❌'}`);
+  });
+}
+
+// Export for Netlify Functions
+module.exports.handler = serverless(app);

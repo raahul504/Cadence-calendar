@@ -49,7 +49,7 @@ function EventList({ events, onDelete, onEdit, timeFormat, timeZone }) {
   return (
     <ul className="event-list">
       {sortedEvents.map(e => (
-        <li key={e.id} className="event-item" style={{ backgroundColor: e.color || "#3f51b5" }}>
+        <li key={e.id} className="event-item" style={{ "--eventColor": e.color || "#3f51b5" }}>
           <div className="event-info">
             <div className="event-title">{e.title}</div>
             <div className="event-meta">

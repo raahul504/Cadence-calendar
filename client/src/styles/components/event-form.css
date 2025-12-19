@@ -36,7 +36,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s;
-  background: var(--background);
+  background: transparent;
 }
 
 .form-input:focus {

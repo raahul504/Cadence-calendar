@@ -7,7 +7,22 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background: linear-gradient(180deg, #FFEFD9 0%, #FFEACC 47%, #FFE2B8 86%, #FFD79F 100%);
+  /*background: 
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(255, 133, 47, 0.35),
+      rgba(0, 0, 0, 0) 50%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(255, 119, 40, 0.493),
+      rgba(0, 0, 0, 0) 55%
+    ),
+    linear-gradient(180deg, #0a0a0a, #000000);*/
+  background-image: url('../../../client/public/wallpaper1.jpg');
+  background-attachment: fixed;
+  background-position: center;
+  color-scheme: dark;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

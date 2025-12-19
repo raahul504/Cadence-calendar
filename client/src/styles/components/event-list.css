@@ -11,7 +11,7 @@
 .event-list-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #ffffff;
 }
 
 /* Event List */
@@ -30,20 +30,38 @@
 
 .event-item {
   padding: 0.9rem 1rem;
-  background: var(--background);
+  background: rgba(40, 40, 40, 0.45);  /* dark frosted glass */
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+  
   border-radius: 25px;
-  /*border: 0.5px solid chocolate;*/
+
+  box-shadow: inset 0 0 35px rgba(255, 255, 255, 0.09);
+  
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
   animation: slideIn 0.3s ease-out;
 }
+/* The event color overlay (tinted glass effect) */
+.event-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+
+  background: var(--eventColor, transparent);
+  opacity: 0.36;      /* adjust tint strength here */
+  mix-blend-mode: soft-light;
+
+  pointer-events: none;
+  z-index: 0;
+}
 
 .event-item:hover {
-  background: white;
+  background: rgba(50, 50, 50, 0.55);
   transform: translateX(4px);
-  box-shadow: var(--shadow);
 }
 
 .event-color-bar {
@@ -53,24 +71,29 @@
   border-radius: 12px;       /* pill shape */
   flex-shrink: 0;            /* don't collapse */
   margin-right: 10px;
+  /* subtle neon glow */
+  box-shadow:
+    0 0 8px currentColor,
+    0 0 14px currentColor;
 }
 
 .event-info {
   flex: 1;
   min-width: 0;
+  z-index: 1;
 }
 
 .event-title {
-  font-weight: 600;
-  color: white;
-  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.15rem;
   margin-bottom: 0.5rem;
 }
 
 .event-meta {
   min-width: 0;
-  color: whitesmoke;
-  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.87rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -79,7 +102,7 @@
 .event-meta span {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.35rem;
   min-width: 0;
   white-space: nowrap;
   flex-shrink: 0;
@@ -101,8 +124,9 @@
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
-  margin-left: 0.75rem;
+  margin-left: auto;
   width: 12%;
+  z-index: 1;
 }
 
 /* Empty State */
@@ -128,17 +152,48 @@
 }
 
 .event-list::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
   border-radius: 4px;
 }
 
 .event-list::-webkit-scrollbar-thumb {
-  background: var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.18);  /* more visible white border */
+
+  /* stronger frosted inner glow */
+  box-shadow:
+    inset 0 0 15px rgba(255, 255, 255, 0.06);
   border-radius: 4px;
 }
 
 .event-list::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Shared glass style for event action buttons */
+.event-item .btn-edit,
+.event-item .btn-danger {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgba(255, 255, 255, 0.85);
+  transition: 0.25s ease;
+}
+
+.event-item .btn-edit:hover,
+.event-item .btn-danger:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  transform: translateY(-2px);
 }
 
 /* Responsive Design */

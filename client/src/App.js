@@ -467,7 +467,7 @@ const handleEventCommand = async (commandData) => {
           <div className="modal-body">
             <div className="settings-group">
               <label className="settings-label">Signed in as</label>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              <p style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                 {profile?.full_name || user?.email}
               </p>
             </div>

@@ -3,7 +3,9 @@
 :root {
   /* Primary Colors */
   --primary: #FF9849;
+  --primary-rgb: 255, 152, 73;
   --secondary: #C85802;
+  --secondary-rgb: 200, 88, 2;
   --tertiary: #483fea4c;
   --success: #10b981;
   --danger: #ef4444;
@@ -13,7 +15,7 @@
   --surface: #ffffff;
   
   /* Text Colors */
-  --text-primary: #1e293b;
+  --text-primary: white;
   --text-secondary: #64748b;
   --header-text: #ffdba8;
   
