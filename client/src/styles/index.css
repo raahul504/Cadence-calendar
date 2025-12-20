@@ -1,0 +1,45 @@
+/* Main CSS Entry Point - Modularized Calendar App Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+/* 1. Variables & Tokens */
+@import './variables.css';
+
+/* 2. Base & Reset */
+@import './base.css';
+
+/* 3. Animations */
+@import './animations.css';
+
+/* 4. Component Styles */
+@import './components/header.css';
+@import './components/clock.css';
+@import './components/cards.css';
+@import './components/buttons.css';
+@import './components/sidebar.css';
+@import './components/event-list.css';
+@import './components/event-form.css';
+@import './components/calendar.css';
+@import './components/modal.css';
+@import './components/settings.css';
+@import './components/auth.css';
+@import './components/chat.css';
+
+/* 
+  📁 Modular CSS Structure:
+  
+  styles/
+  ├── index.css (this file)
+  ├── variables.css
+  ├── base.css
+  ├── animations.css
+  └── components/
+      ├── header.css
+      ├── clock.css
+      ├── cards.css
+      ├── buttons.css
+      ├── sidebar.css
+      ├── event-list.css
+      ├── event-form.css
+      ├── calendar.css
+      └── modal.css
+*/
