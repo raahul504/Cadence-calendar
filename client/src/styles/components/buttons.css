@@ -44,7 +44,9 @@
 }
 
 .btn-secondary:hover {
-  background: var(--text-primary);
+  background-color:rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
 }
 
 .btn-danger {
@@ -181,7 +183,7 @@
   border: none;
   width: 100%;
   font-weight: 100;
-  margin-top: 100%;
+  margin-top: 80%;
   margin-bottom: 0;
   flex:1;
 }
@@ -192,4 +194,27 @@
   /* stronger frosted inner glow */
   box-shadow:
     inset 0 0 15px rgba(255, 255, 255, 0.06);
+}
+
+/* Wallpaper button styling */
+.btn-wallpaper {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-wallpaper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
 }

@@ -87,7 +87,7 @@
 
 .color-option.selected {
   border-color: var(--text-primary);
-  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--text-primary);
+  /*box-shadow: 0 0 0 2px white, 0 0 0 4px var(--text-primary);*/
 }
 
 .color-option.selected::after {

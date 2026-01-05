@@ -7,6 +7,9 @@ import EventList from "./EventList";
 import CalendarView from "./CalendarView";
 import ChatInterface from "./ChatInterface"; 
 import AuthPage from "./pages/AuthPage";
+import WallpaperPicker from './styles/components/WallpaperPicker';
+import { wallpaperHelpers } from './lib/supabase';
+import { getWallpaperCSS } from './lib/wallpaperPresets';
 import "./styles/index.css";
 
 function App() {
@@ -34,11 +37,32 @@ function App() {
   const [settingsWidth, setSettingsWidth] = useState(0);
   const [showClearChatModal, setShowClearChatModal] = useState(false);
 
+  // Wallpaper settings state
+  const [showWallpaperPicker, setShowWallpaperPicker] = useState(false);
+  const [wallpaperSettings, setWallpaperSettings] = useState({
+    type: 'gradient',
+    value: 'sunset',
+    blur: 0,
+    brightness: 100
+  });
+
   // Load settings from profile
   useEffect(() => {
     if (profile) {
       setTimeFormat(profile.time_format || "12h");
       setTimeZone(profile.timezone || "Asia/Calcutta");
+    }
+  }, [profile]);
+
+  // Load wallpaper settings from profile
+  useEffect(() => {
+    if (profile) {
+      setWallpaperSettings({
+        type: profile.wallpaper_type || 'gradient',
+        value: profile.wallpaper_value || 'sunset',
+        blur: profile.wallpaper_blur || 0,
+        brightness: profile.wallpaper_brightness || 100
+      });
     }
   }, [profile]);
   
@@ -127,72 +151,72 @@ function App() {
   };
 
   // NEW - Handle AI event commands
-const handleEventCommand = async (commandData) => {
-  console.log('=== handleEventCommand called ===');
-  console.log('Raw commandData:', commandData);
-  console.log('Type:', typeof commandData);
-  
-  try {
-    // Handle different input formats
-    let commands = [];
+  const handleEventCommand = async (commandData) => {
+    console.log('=== handleEventCommand called ===');
+    console.log('Raw commandData:', commandData);
+    console.log('Type:', typeof commandData);
     
-    if (Array.isArray(commandData)) {
-      commands = commandData;
-      console.log('Format: Array');
-    } else if (commandData?.commands) {
-      commands = commandData.commands;
-      console.log('Format: Has commands property');
-    } else if (commandData?.command) {
-      commands = [commandData.command];
-      console.log('Format: Has command property');
-    } else if (commandData?.action) {
-      commands = [commandData];
-      console.log('Format: Single command object');
-    } else {
-      console.log('Invalid command data:', commandData);
-      return;
-    }
-    
-    console.log('Commands to execute:', commands);
-    
-    for (const command of commands) {
-      console.log('Executing command:', command);
+    try {
+      // Handle different input formats
+      let commands = [];
       
-      switch (command.action) {
-        case 'create_event':
-          if (command.data) {
-            console.log('Creating event:', command.data);
-            await saveEvent(command.data);
-          }
-          break;
-          
-        case 'update_event':
-          if (command.data && command.data.id) {
-            console.log('Updating event:', command.data);
-            await saveEvent(command.data);
-          }
-          break;
-          
-        case 'delete_event':
-          if (command.data && command.data.id) {
-            console.log('Deleting event:', command.data.id);
-            await deleteEvent(command.data.id);
-          }
-          break;
-          
-        default:
-          console.log('Unknown command:', command.action);
+      if (Array.isArray(commandData)) {
+        commands = commandData;
+        console.log('Format: Array');
+      } else if (commandData?.commands) {
+        commands = commandData.commands;
+        console.log('Format: Has commands property');
+      } else if (commandData?.command) {
+        commands = [commandData.command];
+        console.log('Format: Has command property');
+      } else if (commandData?.action) {
+        commands = [commandData];
+        console.log('Format: Single command object');
+      } else {
+        console.log('Invalid command data:', commandData);
+        return;
       }
+      
+      console.log('Commands to execute:', commands);
+      
+      for (const command of commands) {
+        console.log('Executing command:', command);
+        
+        switch (command.action) {
+          case 'create_event':
+            if (command.data) {
+              console.log('Creating event:', command.data);
+              await saveEvent(command.data);
+            }
+            break;
+            
+          case 'update_event':
+            if (command.data && command.data.id) {
+              console.log('Updating event:', command.data);
+              await saveEvent(command.data);
+            }
+            break;
+            
+          case 'delete_event':
+            if (command.data && command.data.id) {
+              console.log('Deleting event:', command.data.id);
+              await deleteEvent(command.data.id);
+            }
+            break;
+            
+          default:
+            console.log('Unknown command:', command.action);
+        }
+      }
+      
+      await loadEvents();
+      console.log('Events reloaded');
+      
+    } catch (error) {
+      console.error('Error executing AI command:', error);
+      throw error;
     }
-    
-    await loadEvents();
-    console.log('Events reloaded');
-    
-  } catch (error) {
-    console.error('Error executing AI command:', error);
-    throw error;
-  }
-};
+  };
 
   const formatDateLong = (date) => {
     if (!date) return "";
@@ -247,8 +271,14 @@ const handleEventCommand = async (commandData) => {
     return <AuthPage />;
   }
 
+  // Wallpaper save handler
+  const handleWallpaperSave = (newSettings) => {
+    setWallpaperSettings(newSettings);
+  };
+
   return (
     <div className="app-container">
+      <div className="app-background" style={getWallpaperCSS(wallpaperSettings.type, wallpaperSettings.value, wallpaperSettings.blur, wallpaperSettings.brightness)}/>
       <header className="app-header">
         <div className="header-left">
          
@@ -507,6 +537,20 @@ const handleEventCommand = async (commandData) => {
                 ))}
               </select>
             </div>
+            <div className="settings-group">
+              <button 
+                className="btn btn-wallpaper"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowWallpaperPicker(true);
+                  // Auto-close settings drawer
+                  setSettingsOpen(false);
+                  setSettingsWidth(0);
+                }}
+              >
+                🎨 Change Wallpaper
+              </button>
+            </div>
             <div style={{ display: "flex", gap: "0.5rem", marginTop: "1.5rem" }}>
             </div>
             <button className="btn sign-out-btn" onClick={signOut}>
@@ -515,6 +559,52 @@ const handleEventCommand = async (commandData) => {
           </div>
         </div>
       </div>
+
+      {showWallpaperPicker && (
+        <div 
+          className="wallpaper-modal-centered"
+          onClick={(e) => {
+            // Close if clicking outside the modal content
+            if (e.target === e.currentTarget) {
+              setShowWallpaperPicker(false);
+            }
+          }}
+        >
+          <div className="wallpaper-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">🎨 Choose Wallpaper</h2>
+              <button
+                className="btn-close-modal"
+                onClick={() => setShowWallpaperPicker(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <WallpaperPicker
+                userId={user.id}
+                currentSettings={wallpaperSettings}
+                onSave={handleWallpaperSave}
+                onClose={() => setShowWallpaperPicker(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay - dims background when either drawer is open
+      {(settingsOpen || showWallpaperPicker) && (
+        <div
+          className="dual-drawer-overlay"
+          onClick={() => {
+            setSettingsOpen(false);
+            setSettingsWidth(0);
+            setShowWallpaperPicker(false);
+            setWallpaperPickerWidth(0);
+          }}
+        />
+      )} */}
 
       {/* Background Overlay */}
       {settingsOpen && (
@@ -526,6 +616,7 @@ const handleEventCommand = async (commandData) => {
           }}
         ></div>
       )}
+
       {/*<footer className="app-footer">
         <p>Welcome, {profile?.full_name || user?.email} • Made with ❤️</p>
       </footer>*/}

@@ -23,6 +23,7 @@
 @import './components/settings.css';
 @import './components/auth.css';
 @import './components/chat.css';
+@import './components/wallpaper-picker.css';
 
 /* 
   📁 Modular CSS Structure:

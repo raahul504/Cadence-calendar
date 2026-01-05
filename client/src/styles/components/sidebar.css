@@ -4,7 +4,7 @@
   width: 100%;
   height: 522px;
   min-height: 505px; /* prevents shrinking */
-  overflow: hidden;
+  /*overflow: hidden;*/
   gap: 1rem;
   padding-top: 5px;
   animation: fadeIn 0.6s ease-out 0.4s both;
@@ -13,14 +13,15 @@
 
 /* Event Sidebar (Collapsible) */
 .event-sidebar {
-  background: rgba(202, 202, 202, 0.15);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(36px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
   border-radius: var(--radius);
 
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.234);
   transition: all 0.3s ease;
   width: 60px;
   overflow: hidden;
@@ -28,6 +29,23 @@
   color: var(--primary);
 }
 
+.event-sidebar::before{
+  content: '';
+  position: absolute;
+  inset:1;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
+}
 .event-sidebar.expanded {
   width: 350px;
 }
@@ -74,12 +92,12 @@
 
 /* Chat Sidebar */
 .chat-sidebar {
-  background: rgba(40, 40, 40, 0.52);
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.234);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(36px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
   border-radius: var(--radius);
 
@@ -93,6 +111,23 @@
   flex-direction: column;
   min-width: 0;
   color: var(--primary);
+}
+
+.chat-sidebar::before{
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
 }
 
 .chat-sidebar.expanded {

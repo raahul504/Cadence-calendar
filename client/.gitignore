@@ -25,7 +25,7 @@ yarn-error.log*
 .env.local
 .env
 
-client/src/
+client/src/modern-calendar.css
 modern-calendar.css
 
 client/.env

@@ -210,3 +210,83 @@ export const conversationHelpers = {
     return { error };
   }
 };
+
+// =====================================================
+// WALLPAPER FUNCTIONS
+// =====================================================
+
+export const wallpaperHelpers = {
+  // Upload custom wallpaper image
+  uploadWallpaper: async (userId, file) => {
+    try {
+      // Create unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('wallpapers')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) throw error;
+      
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('wallpapers')
+        .getPublicUrl(fileName);
+      
+      return { url: urlData.publicUrl, error: null };
+    } catch (error) {
+      console.error('Error uploading wallpaper:', error);
+      return { url: null, error };
+    }
+  },
+
+  // Delete wallpaper from storage
+  deleteWallpaper: async (url) => {
+    try {
+      // Extract path from URL
+      const path = url.split('/wallpapers/')[1];
+      
+      const { error } = await supabase.storage
+        .from('wallpapers')
+        .remove([path]);
+      
+      return { error };
+    } catch (error) {
+      console.error('Error deleting wallpaper:', error);
+      return { error };
+    }
+  },
+
+  // Update user's wallpaper settings
+  updateWallpaperSettings: async (userId, settings) => {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .update({
+        wallpaper_type: settings.type,
+        wallpaper_value: settings.value,
+        wallpaper_blur: settings.blur,
+        wallpaper_brightness: settings.brightness
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    return { data, error };
+  },
+
+  // Get user's wallpaper settings
+  getWallpaperSettings: async (userId) => {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('wallpaper_type, wallpaper_value, wallpaper_blur, wallpaper_brightness')
+      .eq('id', userId)
+      .single();
+    
+    return { data, error };
+  }
+};

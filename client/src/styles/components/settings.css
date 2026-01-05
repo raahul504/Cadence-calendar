@@ -59,9 +59,9 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.2); /* dimmer */
+  background: transparent; /* dimmer */
   backdrop-filter: blur(1px);     /* optional nice blur */
-  z-index: 1999; /* lower than the popout, higher than everything else */
+  z-index: 4999; /* lower than the popout, higher than everything else */
   display: flex;
   align-items: flex-start; /* keep your popout at its own position */
   justify-content: flex-start;

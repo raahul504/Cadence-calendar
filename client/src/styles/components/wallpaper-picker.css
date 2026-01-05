@@ -1,0 +1,410 @@
+/* REPLACE client/src/styles/components/wallpaper-picker.css with this: */
+
+/* Centered Wallpaper Modal - No Overlay */
+.wallpaper-modal-centered {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6000 !important; /* Above settings drawer (5000) */
+  pointer-events: none; /* Allow clicks through to background */
+}
+
+.wallpaper-modal-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(36px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: all; /* Re-enable clicks on modal */
+  display: flex;
+  flex-direction: column;
+
+}
+.wallpaper-modal-content::before{
+  content: '';
+  position: absolute;
+  inset:1;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.1)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+  -webkit-mask-composite: exclude;
+  mask-composite: exclude;
+}
+
+/* Modal header */
+.wallpaper-modal-content .modal-header {
+  flex-shrink: 0;
+}
+
+/* Modal body */
+.wallpaper-modal-content .modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Adjust wallpaper picker for centered modal */
+.wallpaper-modal-content .wallpaper-picker {
+  max-height: none;
+}
+
+.wallpaper-modal-content .wallpaper-content {
+  max-height: 350px; /* Adjust based on modal height */
+}
+
+.wallpaper-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent; /* dimmer */
+  /*backdrop-filter: blur(1px);     /* optional nice blur */
+  z-index: 1999; /* lower than the popout, higher than everything else */
+  display: flex;
+  align-items: flex-start; /* keep your popout at its own position */
+  justify-content: flex-start;
+}
+.wallpaper-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: none;
+}
+
+/* Tabs */
+.wallpaper-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-button.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+/* Content Area */
+.wallpaper-content {
+  overflow-y: auto;
+  min-height: 130px;
+  max-height: 400px;
+  padding: 0.25rem;
+}
+
+/* Grid Layout */
+.wallpaper-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+/* Wallpaper Option Card */
+.wallpaper-option {
+  aspect-ratio: 16 / 9;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wallpaper-option:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.wallpaper-option.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 0 5px var(--primary);
+  transform: scale(1.02);
+}
+
+.wallpaper-option.selected:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Image wallpapers get a subtle overlay for text readability */
+.wallpaper-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.wallpaper-image:hover::before {
+  opacity: 1;
+}
+
+/* Wallpaper Name Label */
+.wallpaper-name {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(8px);
+  z-index: 1;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.wallpaper-option:hover .wallpaper-name,
+.wallpaper-option.selected .wallpaper-name {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wallpaper-option.selected .wallpaper-name {
+  background: var(--primary);
+}
+
+/* Controls Section */
+.wallpaper-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.control-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control-value {
+  font-size: 0.85rem;
+  color: var(--primary);
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 12px;
+  min-width: 45px;
+  text-align: center;
+}
+
+/* Slider Styling */
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.slider::-moz-range-thumb:active {
+  transform: scale(1.05);
+}
+
+/* Error Message */
+.wallpaper-error {
+  padding: 0.85rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Actions */
+.wallpaper-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wallpaper-actions .btn {
+  flex: 1;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.wallpaper-actions .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wallpaper-actions .btn-primary:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Scrollbar */
+.wallpaper-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.wallpaper-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.wallpaper-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.wallpaper-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wallpaper-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .wallpaper-tabs {
+    flex-direction: row;
+  }
+
+  .tab-button {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .wallpaper-controls {
+    padding: 1rem;
+  }
+  .wallpaper-modal-content {
+    width: 95%;
+    max-width: none;
+    max-height: 90vh;
+    border-radius: 16px;
+  }
+
+  .wallpaper-modal-content .modal-body {
+    padding: 1rem;
+  }
+
+  .wallpaper-modal-content .wallpaper-content {
+    max-height: 300px;
+  }
+}
+
+/* Animation for content switching */
+.wallpaper-content > * {
+  animation: fadeInContent 0.3s ease-out;
+}
