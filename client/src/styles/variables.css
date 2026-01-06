@@ -6,7 +6,9 @@
   --primary-rgb: 255, 152, 73;
   --secondary: #C85802;
   --secondary-rgb: 200, 88, 2;
-  --tertiary: #483fea4c;
+  --tertiary: #939dab;
+  --tertiary-rgb: 147, 157, 171;
+  --link: #483fea4c;
   --success: #10b981;
   --danger: #ef4444;
   
@@ -16,7 +18,7 @@
   
   /* Text Colors */
   --text-primary: white;
-  --text-secondary: #939dab;
+  --text-secondary: #d1dbe9;
   --header-text: #ffdba8;
   
   /* Border & Shadows */

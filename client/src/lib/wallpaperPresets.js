@@ -119,7 +119,7 @@ export const wallpaperPresets = {
     {
       id: 'ocean-blur',
       name: 'Ocean Blur',
-      value: '/wallpapers/ocean-blur.jpg'
+      value: '/wallpapers/ocean-blur.jpeg'
     },
     {
       id: 'northern-lights',
@@ -150,6 +150,16 @@ export const wallpaperPresets = {
       id: 'minimalist-texture',
       name: 'Minimalist',
       value: '/wallpapers/minimalist-texture.jpg'
+    },
+    {
+      id: 'black-mist',
+      name: 'Black Mist',
+      value: '/wallpapers/black-mist.jpg'
+    },
+    {
+      id: 'heavens-gate',
+      name: 'Heaven"s Gate',
+      value: '/wallpapers/heavens-gate.jpg'
     }
   ]
 };

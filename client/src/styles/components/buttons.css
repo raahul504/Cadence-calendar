@@ -39,7 +39,7 @@
 }
 
 .btn-secondary {
-  background: var(--text-secondary);
+  background: var(--tertiary);
   color: white;
 }
 
@@ -117,11 +117,17 @@
 
 .btn-add-event {
   background: transparent;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   font-size: 1.7rem;
   white-space: nowrap;
   align-items: flex-end;
   flex-shrink: 0;
+  margin-right: 18px;
+}
+.btn-add-event:hover{
+  align-items: center !important;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
 }
 
 /* Modal buttons */

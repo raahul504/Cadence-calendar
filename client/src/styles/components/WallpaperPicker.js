@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { wallpaperPresets } from '../../lib/wallpaperPresets';
 import { wallpaperHelpers } from '../../lib/supabase';
 
@@ -8,54 +8,24 @@ function WallpaperPicker({
   onSave, 
   onClose 
 }) {
-  const [activeTab, setActiveTab] = useState('gradients');
-  const [selectedType, setSelectedType] = useState(currentSettings?.type || 'gradient');
-  const [selectedValue, setSelectedValue] = useState(currentSettings?.value || 'sunset');
+  const [activeTab, setActiveTab] = useState('images');
+  const [selectedType, setSelectedType] = useState(currentSettings?.type || 'image');
+  const [selectedValue, setSelectedValue] = useState(currentSettings?.value || 'abstract-waves');
   const [blur, setBlur] = useState(currentSettings?.blur || 0);
   const [brightness, setBrightness] = useState(currentSettings?.brightness || 100);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
-  const fileInputRef = useRef(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   const handlePresetSelect = (type, value) => {
     setSelectedType(type);
     setSelectedValue(value);
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Please select an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image must be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadError(null);
-
-    try {
-      const { url, error } = await wallpaperHelpers.uploadWallpaper(userId, file);
-      
-      if (error) throw error;
-      
-      setSelectedType('image');
-      setSelectedValue(url);
-    } catch (err) {
-      console.error('Upload error:', err);
-      setUploadError('Failed to upload image. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
+    setError(null);
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
+    setError(null);
+
     try {
       const settings = {
         type: selectedType,
@@ -72,13 +42,22 @@ function WallpaperPicker({
       onClose();
     } catch (err) {
       console.error('Save error:', err);
-      setUploadError('Failed to save settings');
+      setError('Failed to save wallpaper. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <div className="wallpaper-picker">
+      {/* Tabs */}
       <div className="wallpaper-tabs">
+        <button
+          className={`tab-button ${activeTab === 'images' ? 'active' : ''}`}
+          onClick={() => setActiveTab('images')}
+        >
+          📸 Images
+        </button>
         <button
           className={`tab-button ${activeTab === 'gradients' ? 'active' : ''}`}
           onClick={() => setActiveTab('gradients')}
@@ -91,15 +70,11 @@ function WallpaperPicker({
         >
           ⚡ Patterns
         </button>
-        <button
-          className={`tab-button ${activeTab === 'upload' ? 'active' : ''}`}
-          onClick={() => setActiveTab('upload')}
-        >
-          📸 Upload
-        </button>
       </div>
 
+      {/* Content */}
       <div className="wallpaper-content">
+        {/* Gradients Tab */}
         {activeTab === 'gradients' && (
           <div className="wallpaper-grid">
             {wallpaperPresets.gradients.map((preset) => (
@@ -117,6 +92,7 @@ function WallpaperPicker({
           </div>
         )}
 
+        {/* Patterns Tab */}
         {activeTab === 'patterns' && (
           <div className="wallpaper-grid">
             {wallpaperPresets.patterns.map((preset) => (
@@ -138,49 +114,35 @@ function WallpaperPicker({
           </div>
         )}
 
-        {activeTab === 'upload' && (
-          <div className="upload-section">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: 'none' }}
-            />
-            
-            <button
-              className="btn btn-upload"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              {isUploading ? '⏳ Uploading...' : '📤 Choose Image'}
-            </button>
-
-            {uploadError && (
-              <div className="upload-error">⚠️ {uploadError}</div>
-            )}
-
-            {selectedType === 'image' && (
-              <div
-                className="image-preview"
-                style={{ backgroundImage: `url(${selectedValue})` }}
+        {/* Images Tab - NEW (replaces Upload) */}
+        {activeTab === 'images' && (
+          <div className="wallpaper-grid">
+            {wallpaperPresets.images.map((preset) => (
+              <button
+                key={preset.id}
+                className={`wallpaper-option wallpaper-image ${
+                  selectedType === 'image' && selectedValue === preset.id ? 'selected' : ''
+                }`}
+                onClick={() => handlePresetSelect('image', preset.id)}
+                style={{
+                  backgroundImage: `url(${preset.value})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
-                <span className="preview-label">Current Image</span>
-              </div>
-            )}
-
-            <p className="upload-hint">
-              Recommended: 1920x1080 or higher<br />
-              Max size: 5MB • JPG, PNG, WebP
-            </p>
+                <span className="wallpaper-name">{preset.name}</span>
+              </button>
+            ))}
           </div>
         )}
       </div>
 
+      {/* Controls */}
       <div className="wallpaper-controls">
         <div className="control-group">
           <label className="control-label">
-            Blur: {blur}px
+            <span>Blur</span>
+            <span className="control-value">{blur}px</span>
           </label>
           <input
             type="range"
@@ -194,7 +156,8 @@ function WallpaperPicker({
 
         <div className="control-group">
           <label className="control-label">
-            Brightness: {brightness}%
+            <span>Brightness</span>
+            <span className="control-value">{brightness}%</span>
           </label>
           <input
             type="range"
@@ -207,12 +170,28 @@ function WallpaperPicker({
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="wallpaper-error">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Actions */}
       <div className="wallpaper-actions">
-        <button className="btn btn-secondary" onClick={onClose}>
+        <button 
+          className="btn btn-secondary" 
+          onClick={onClose}
+          disabled={isSaving}
+        >
           Cancel
         </button>
-        <button className="btn btn-primary" onClick={handleSave}>
-          Apply Wallpaper
+        <button 
+          className="btn btn-primary" 
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Applying...' : 'Apply Wallpaper'}
         </button>
       </div>
     </div>

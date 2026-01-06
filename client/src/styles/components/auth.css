@@ -80,7 +80,7 @@
 }
 
 .auth-link:hover {
-  color: var(--tertiary);
+  color: var(--link);
   text-decoration: underline;
 }
 
