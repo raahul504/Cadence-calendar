@@ -42,10 +42,11 @@ function ChatInterface({ userId, userEvents, onEventCommand, onClearChatRef }) {
     scrollToBottom();
   }, [messages]);
 
-  // Initialize conversation
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     initializeConversation();
   }, [userId]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const initializeConversation = async () => {
     try {
@@ -163,23 +164,6 @@ function ChatInterface({ userId, userEvents, onEventCommand, onClearChatRef }) {
     }
   };
 
-  const handleClearChat = async () => {
-    if (!window.confirm('Clear this conversation? This cannot be undone.')) {
-      return;
-    }
-
-    try {
-      if (currentConversationId) {
-        await conversationHelpers.deleteConversation(currentConversationId);
-      }
-      setMessages([]);
-      setCurrentConversationId(null);
-      await initializeConversation();
-    } catch (err) {
-      console.error('Error clearing chat:', err);
-      setError('Failed to clear conversation');
-    }
-  };
   useEffect(() => {
     if (!onClearChatRef) return;
 
@@ -198,7 +182,7 @@ function ChatInterface({ userId, userEvents, onEventCommand, onClearChatRef }) {
     };
 
     onClearChatRef(confirmFn);
-    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClearChatRef, currentConversationId]);
 
 

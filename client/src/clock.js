@@ -8,11 +8,6 @@ function Clock({ timeFormat, timeZone }) {
     return () => clearInterval(timer);
   }, []);
 
-  const day = time.toLocaleDateString("en-US", {
-    weekday: "long",
-    timeZone: timeZone
-  });
-
   const formattedTime = time.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",

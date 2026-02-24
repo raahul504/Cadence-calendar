@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 
@@ -6,15 +6,6 @@ function CalendarView({ events, selectedDate, onSelectDate, onChangeViewMode }) 
   const handleDateChange = (d) => {
     onSelectDate(d);
     onChangeViewMode("selected");   // <-- add this line
-  };
-
-  // ADD THIS - Function to check if a date is in the past
-  const isPastDate = (date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    return checkDate < today;
   };
 
   return (

@@ -146,6 +146,7 @@ export const AuthProvider = ({ children }) => {
       clearTimeout(timeoutId);
       subscription?.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sign up

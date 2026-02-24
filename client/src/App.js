@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "./contexts/AuthContext";
 import { eventHelpers } from "./lib/supabase";
 import Clock from "./clock";
@@ -8,7 +8,6 @@ import CalendarView from "./CalendarView";
 import ChatInterface from "./ChatInterface"; 
 import AuthPage from "./pages/AuthPage";
 import WallpaperPicker from './styles/components/WallpaperPicker';
-import { wallpaperHelpers } from './lib/supabase';
 import { getWallpaperCSS } from './lib/wallpaperPresets';
 import "./styles/index.css";
 
@@ -88,6 +87,7 @@ function App() {
     } else {
       setEvents([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadEvents = async () => {

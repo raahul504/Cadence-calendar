@@ -224,7 +224,7 @@ export const wallpaperHelpers = {
       const fileName = `${userId}/${Date.now()}.${fileExt}`;
       
       // Upload to Supabase storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('wallpapers')
         .upload(fileName, file, {
           cacheControl: '3600',
