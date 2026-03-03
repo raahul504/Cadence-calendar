@@ -13,7 +13,7 @@
 
 /* Event Sidebar (Collapsible) */
 .event-sidebar {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(36px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 
@@ -92,7 +92,7 @@
 
 /* Chat Sidebar */
 .chat-sidebar {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(36px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: 
@@ -187,10 +187,12 @@
   }
 
   .event-sidebar, .chat-sidebar {
+    isolation: isolate;
     width: 100%;
   }
 
   .event-sidebar.expanded, .chat-sidebar.expanded {
+    isolation: isolate;
     width: 100%;
   }
 }

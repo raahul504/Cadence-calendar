@@ -66,3 +66,13 @@
     transform: translateY(0);
   }
 }
+
+@keyframes glass-shimmer {
+  0% { filter: brightness(1) drop-shadow(0px -1px 1px rgba(255,255,255,0.5)); }
+  50% { filter: brightness(1.15) drop-shadow(0px -1px 2px rgba(255,255,255,0.8)); }
+  100% { filter: brightness(1) drop-shadow(0px -1px 1px rgba(255,255,255,0.5)); }
+}
+
+.clock-time {
+  animation: glass-shimmer 4s infinite ease-in-out;
+}

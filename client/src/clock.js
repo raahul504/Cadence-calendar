@@ -15,11 +15,16 @@ function Clock({ timeFormat, timeZone }) {
     timeZone: timeZone
   });
 
-  return (
+  // Inside your return statement
+return (
+  <div className="clock-container">
+
     <div className="clock-time">
-      {`${formattedTime}`}
+      {formattedTime}
     </div>
-  );
+
+  </div>
+);
 }
 
 export default Clock;

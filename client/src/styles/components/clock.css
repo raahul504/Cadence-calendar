@@ -1,34 +1,42 @@
-/* Clock */
+/* Optimized Liquid Glass Text Effect */
+
 .clock-container {
-  font-family: "SAO Torpes", sans-serif !important;
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: none;
-  text-align: right;
-  /*text-align: center;*/
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: column; /* Stack the date elements */
+  justify-content: flex-end;
+  align-items: flex-end; /* Align to the right as per your original file */
   animation: fadeIn 0.6s ease-out 0.2s both;
+  background: transparent;
 }
 
+/* Main time - Large and bold like the reference */
 .clock-time {
-  transform: scaleY(1.3);
-  display: inline-block;
-  -webkit-text-stroke: 1px chocolate;
-  font-size: 3rem;
-  font-weight: 150;
-  color: var(--header-text);
+  font-size: 4rem; /* Slightly larger for better refraction visibility */
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
-  /*text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);*/
-}
+  letter-spacing: -2px;
+  display: inline-block;
 
-/* Responsive Design */
-@media (max-width: 768px){
-  .clock-container {
-    text-align: center;
-  }
+  /* 1. The Glass Surface Reflection */
+  /* Using a gradient makes the top of the letters look like they are catching light */
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.6) 0%, 
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 
-  .clock-time {
-    font-size: 2rem;
-  }
+  /* 2. The Refraction (Liquid) */
+  /* This pulls the colors from the background and distorts them 
+  backdrop-filter: blur(25px) saturate(200%) brightness(1.1); */
+  
+  /* 3. The 3D Glass Edge (Specular Highlights) */
+  /* This is the secret to the Apple look: 
+     - A white 'rim' on top
+     - A subtle dark 'refraction' shadow below 
+  */
+  filter: drop-shadow(0px -1px 1px rgba(255, 255, 255, 0.6)) 
+          drop-shadow(0px 4px 15px rgba(0, 0, 0, 0.2));
 }
